@@ -16,5 +16,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           url: ${{ github.event.pull_request.html_url }}
         run: |
-          gh pr edit "$url" --add-reviewer ggoncalves17 GuilhermeSousa5 MauroJesus9 ralmachado
+          gh pr edit "$url" --add-reviewer ggoncalves17
+          gh pr edit "$url" --add-reviewer GuilhermeSousa5
+          gh pr edit "$url" --add-reviewer MauroJesus9
+          gh pr edit "$url" --add-reviewer ralmachado
 
