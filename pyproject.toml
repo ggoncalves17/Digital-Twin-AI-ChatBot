@@ -1,0 +1,22 @@
+[project]
+name = "digital-twin"
+version = "0.1.0"
+authors = [
+  {name = "Guilherme Gonçalves", email = "guilherme.goncalves@theloop.pt"},
+  {name = "Guilherme Sousa", email = "guilherme.sousa@theloop.pt"},
+  {name = "Mauro Jesus", email = "mauro.jesus@theloop.pt"},
+  {name = "Rodrigo Machado", email = "rodrigo.machado@theloop.pt"}
+]
+description = "Future Skills's Digital Twin Project"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "langchain>=0.3.27",
+    "langchain-ollama>=0.3.10",
+    "streamlit>=1.50.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.13.3",
+]
