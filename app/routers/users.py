@@ -7,7 +7,7 @@ from typing import List, Optional
 from datetime import datetime
 import uuid
 
-from models.users import (
+from ..models.users import (
     User, UserRegistration, UserUpdate, UserPreferences, UserListResponse,
     UserStatus, UserLogin, ErrorResponse
 )
@@ -38,7 +38,7 @@ def get_next_id() -> int:
         422: {"description": "Validation error"}
     }
 )
-async def create_User(User: UserRegistration) -> User:
+async def create_User(user_data: UserRegistration) -> User:
     """
     Create a new User
     
@@ -51,7 +51,7 @@ async def create_User(User: UserRegistration) -> User:
     - **terms_accepted**: Must be True
     """
     # Check for duplicate email
-    if User.email:
+    if user_data.email:
         existing_User = next((b for b in users_db if b.email == User.email), None)
         if existing_User:
             raise HTTPException(
@@ -62,8 +62,12 @@ async def create_User(User: UserRegistration) -> User:
     # Create new User
     new_User = User(
         id=get_next_id(),
-        **User.model_dump(),
-        created_at=datetime.now()
+        first_name=user_data.first_name,
+        last_name=user_data.last_name,
+        email=user_data.email,
+        date_of_birth=user_data.date_of_birth,
+        total_messages=user_data.total_messages,
+        created_at=datetime.now()  # se TimestampedModel tiver este campo
     )
     
     users_db.append(new_User)
@@ -78,30 +82,19 @@ async def create_User(User: UserRegistration) -> User:
 async def get_users(
     skip: int = Query(0, ge=0, description="Number of users to skip"),
     limit: int = Query(10, ge=1, le=100, description="Maximum number of users to return"),
-    genre: Optional[UserGenre] = Query(None, description="Filter by genre"),
-    author: Optional[str] = Query(None, min_length=1, description="Filter by author name"),
-    year: Optional[int] = Query(None, ge=1000, le=2024, description="Filter by publication year")
+    year: Optional[int] = Query(None, ge=1900, le=2024, description="Filter by birth year")
 ) -> UserListResponse:
     """
     Get a list of users with optional filtering.
     
     Supports pagination and filtering by:
-    - **genre**: User genre
-    - **author**: Author name (partial match)
-    - **year**: Publication year
+    - **year**: Birth year
     """
     # Apply filters
     filtered_users = users_db.copy()
     
-    if genre:
-        filtered_users = [b for b in filtered_users if b.genre == genre]
-    
-    if author:
-        author_lower = author.lower()
-        filtered_users = [b for b in filtered_users if author_lower in b.author.lower()]
-    
     if year:
-        filtered_users = [b for b in filtered_users if b.publication_year == year]
+        filtered_users = [b for b in filtered_users if b.date_of_birth == year]
     
     # Pagination
     total = len(filtered_users)
@@ -120,7 +113,7 @@ async def get_users(
     "/{User_id}",
     response_model=User,
     summary="Get a specific User",
-    description="Retrieve a User by its ID",
+    description="Retrieve a User by its email",
     responses={
         200: {"description": "User found"},
         404: {"model": ErrorResponse, "description": "User not found"}
@@ -161,13 +154,13 @@ async def update_User(
             detail=f"User with ID {User_id} not found"
         )
     
-    # Check ISBN uniqueness if updating
-    if User_update.isbn:
-        existing_User = next((b for b in users_db if b.isbn == User_update.isbn and b.id != User_id), None)
+    # Check email uniqueness if updating
+    if User_update.email:
+        existing_User = next((b for b in users_db if b.email == User_update.email and b.id != User_id), None)
         if existing_User:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"User with ISBN {User_update.isbn} already exists"
+                detail=f"User with email {User_update.email} already exists"
             )
     
     # Update User
@@ -185,7 +178,7 @@ async def update_User(
     "/{User_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a User",
-    description="Remove a User from the library",
+    description="Remove a User by its ID",
     responses={
         204: {"description": "User deleted successfully"},
         404: {"model": ErrorResponse, "description": "User not found"}
@@ -194,7 +187,7 @@ async def update_User(
 async def delete_User(
     User_id: int = Path(..., gt=0, description="User ID")
 ):
-    """Delete a User from the library."""
+    """Delete a User."""
     User_index = next((i for i, b in enumerate(users_db) if b.id == User_id), None)
     if User_index is None:
         raise HTTPException(
@@ -204,45 +197,3 @@ async def delete_User(
     
     users_db.pop(User_index)
     return None
-
-# Statistics endpoints
-@router.get(
-    "/stats/summary",
-    summary="Get library statistics",
-    description="Get summary statistics about the User library"
-)
-async def get_library_stats():
-    """Get library statistics."""
-    if not users_db:
-        return {
-            "total_users": 0,
-            "genres": {},
-            "average_pages": 0,
-            "publication_year_range": None
-        }
-    
-    # Calculate statistics
-    total_users = len(users_db)
-    
-    # Genre distribution
-    genre_counts = {}
-    for User in users_db:
-        genre_counts[User.genre] = genre_counts.get(User.genre, 0) + 1
-    
-    # Average pages
-    total_pages = sum(User.pages for User in users_db)
-    average_pages = round(total_pages / total_users) if total_users > 0 else 0
-    
-    # Publication year range
-    years = [User.publication_year for User in users_db]
-    year_range = {
-        "earliest": min(years),
-        "latest": max(years)
-    }
-    
-    return {
-        "total_users": total_users,
-        "genres": genre_counts,
-        "average_pages": average_pages,
-        "publication_year_range": year_range
-    }
