@@ -3,55 +3,25 @@ User-related data models for the digital twin API.
 """
 
 from pydantic import BaseModel, Field, field_validator, EmailStr
-from typing import Optional
+from typing import List, Optional
 from datetime import date, datetime, timezone
 from enum import Enum
 import re
-from .base import TimestampedModel, ContactInfoModel
-
-class UserStatus(str, Enum):
-    """User account status."""
-    ACTIVE = "active"
-    INACTIVE = "inactive"
-    SUSPENDED = "suspended"
-    PENDING_VERIFICATION = "pending_verification"
-
-class UserPreferences(BaseModel):
-    """User preferences and settings."""
-    
-    persona: str = Field(default="none", pattern=r"^[a-z]{2}$")
-    language: str = Field(default="en", pattern=r"^[a-z]{2}$")
-    timezone: str = Field(default="UTC", max_length=50)
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "persona": "none",
-                "language": "en",
-                "timezone": "UTC"
-            }
-        }
+from .base import TimestampedModel
 
 class User(TimestampedModel):
     """Main User model."""
     
     # Personal Information
+    id: int = Field(..., description="Unique user ID")
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
     date_of_birth: Optional[date] = None
-    
-    # Contact Information
-    contact: ContactInfoModel
-    
-    # Preferences
-    preferences: UserPreferences = Field(default_factory=UserPreferences)
+    email: EmailStr
+    password: str = Field(..., min_length=8, max_length=100)
     
     # Account metrics
     total_messages: int = Field(default=0, ge=0)
-    
-    # Verification
-    email_verified: bool = False
-    phone_verified: bool = False
-    identity_verified: bool = False
     
     @field_validator('first_name', 'last_name')
     @classmethod
@@ -102,13 +72,10 @@ class User(TimestampedModel):
     class Config:
         json_schema_extra = {
             "example": {
+                "id": 1,
                 "first_name": "John",
                 "last_name": "Doe",
                 "date_of_birth": "1990-01-01",
-                "contact": {
-                    "phone": "+1234567890",
-                    "email": "johndoe@email.com",
-                },
                 "preferences": {
                     "persona": "none",
                     "language": "en",
@@ -127,10 +94,9 @@ class UserRegistration(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
     email: EmailStr
-    phone: Optional[str] = None
     password: str = Field(..., min_length=8, max_length=100)
     date_of_birth: Optional[date] = None
-    terms_accepted: bool = Field(..., description="Must accept terms and conditions")
+    total_messages: int = Field(default=0, ge=0)
     
     @field_validator('password')
     @classmethod
@@ -152,24 +118,14 @@ class UserRegistration(BaseModel):
         
         return v
     
-    
-    @field_validator('terms_accepted')
-    @classmethod
-    def validate_terms(cls, v: bool) -> bool:
-        """Ensure terms are accepted."""
-        if not v:
-            raise ValueError("Terms and conditions must be accepted")
-        return v
     class Config:
         json_schema_extra = {
             "example": {
                 "first_name": "John",
                 "last_name": "Doe",
                 "email": "johndoe@email.com",
-                "phone": "+1234567890",
                 "password": "StrongP@ssw0rd!",
                 "date_of_birth": "1990-01-01",
-                "terms_accepted": True
             }
         }
 
@@ -178,36 +134,13 @@ class UserLogin(BaseModel):
     
     email: EmailStr
     password: str = Field(..., min_length=1)
-    remember_me: bool = False
+    # remember_me: bool = False
     class Config:
         json_schema_extra = {
             "example": {
                 "email": "johndoe@email.com",
                 "password": "StrongP@ssw0rd!",
-                "remember_me": False
-            }
-        }
-    
-class UserUpdate(BaseModel):
-    """User profile update model."""
-    
-    first_name: Optional[str] = Field(None, min_length=1, max_length=100)
-    last_name: Optional[str] = Field(None, min_length=1, max_length=100)
-    phone: Optional[str] = None
-    date_of_birth: Optional[date] = None
-    preferences: Optional[UserPreferences] = None
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "first_name": "John",
-                "last_name": "Doe",
-                "phone": "+1234567890",
-                "date_of_birth": "1990-01-01",
-                "preferences": {
-                    "persona": "none",
-                    "language": "en",
-                    "timezone": "UTC"
-                }
+                # "remember_me": False
             }
         }
 
@@ -224,6 +157,7 @@ class UserListResponse(BaseModel):
             "example": {
                 "users": [
                     {
+                        "id": 1,
                         "first_name": "John",
                         "last_name": "Doe",
                         "phone": "+1234567890",
