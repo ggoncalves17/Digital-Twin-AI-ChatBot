@@ -39,6 +39,8 @@ Keeps repo clean
 - Be atomic, i.e., don't create commits dependent on other commits for the project to function.
 
 ## Pull requests
+- Keep PR titles concise and descriptive.
+- Start PR title with an action verb (e.g., Add, Update, Fix, Remove)
 
 Use the following template:
 ```markdown
