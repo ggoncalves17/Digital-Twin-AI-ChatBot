@@ -56,7 +56,6 @@ async def create_User(user_data: UserRegistration) -> str:
     
     # Create new User
     new_User = User(
-        id=get_next_id(),
         first_name=user_data.first_name,
         last_name=user_data.last_name,
         email=user_data.email,

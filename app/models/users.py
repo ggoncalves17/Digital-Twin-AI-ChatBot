@@ -126,6 +126,7 @@ class UserRegistration(BaseModel):
                 "email": "johndoe@email.com",
                 "password": "StrongP@ssw0rd!",
                 "date_of_birth": "1990-01-01",
+                "total_messages": 0
             }
         }
 
