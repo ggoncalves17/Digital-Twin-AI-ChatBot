@@ -17,9 +17,9 @@ class EducationLevel(str, Enum):
     MASTER = "Master"
     PHD = "PhD"
 
-class Education(BaseModel):
+class EducationBase(BaseModel):
 
-    """Education information model."""
+    """Base education model with common fields."""
 
     level : EducationLevel = Field(..., description="Education level")
     course : str = Field(..., min_length=1, max_length=100, description="Name of the course")
@@ -30,15 +30,15 @@ class Education(BaseModel):
 
     @field_validator('course')
     def validate_course(cls, v : str) -> str:
-        if len(v.strip()) == 0:
+        if not v.strip():
             raise ValueError("Course name cannot be empty.")
-        return v
+        return v.strip()
 
     @field_validator('school')
     def validate_school(cls, v : str) -> str:
-        if len(v.strip()) == 0:
+        if not v.strip():
             raise ValueError("School name cannot be empty.")
-        return v
+        return v.strip()
 
     @model_validator(mode='after')
     def validate_is_graduated(self) -> Self:
@@ -52,6 +52,37 @@ class Education(BaseModel):
             raise ValueError("'date_finished' must be after 'date_started'.")
         return self
     
+class EducationCreate(EducationBase):
+    """Model for creating a new education."""
+    pass
+
+class EducationUpdate(BaseModel):
+    """Model for updating an existing education."""
+
+    level: Optional[EducationLevel] = Field(None, description="Education level")
+    course: Optional[str] = Field(None, min_length=1, max_length=100, description="Name of the course")
+    school: Optional[str] = Field(None, min_length=1, max_length=100, description="Name of the school")
+    date_started: Optional[date] = Field(None, description="Date when the course started")
+    date_finished: Optional[date] = Field(None, description="Date when the course finished")
+    is_graduated: Optional[bool] = Field(None, description="Indicates whether the user has graduated")
+
+    @field_validator('course')
+    def validate_course(cls, v : str) -> str:
+        if v is not None and not v.strip():
+            raise ValueError("Course name cannot be empty.")
+        return v.strip()
+
+    @field_validator('school')
+    def validate_school(cls, v : str) -> str:
+        if v is not None and not v.strip():
+            raise ValueError("School name cannot be empty.")
+        return v.strip()
+
+class Education(EducationBase):
+    """Model for education responses."""
+
+    id: int = Field(..., description="Unique education ID")
+
     model_config = {
         "json_schema_extra": {
             "examples": [
@@ -61,15 +92,9 @@ class Education(BaseModel):
                     "school": "Harvard University",
                     "date_started": "2022-10-01",
                     "date_finished": "2025-07-01",
-                    "is_graduated": True
+                    "is_graduated": True,
+                    "id": 1
                 },
-                {
-                    "level": "Master",
-                    "course": "Data Science",
-                    "school": "MIT",
-                    "date_started": "2023-09-01",
-                    "is_graduated": False
-                }
             ]
         }
     }
