@@ -5,18 +5,19 @@ Occupation SQLAlchemy model.
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import date
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, String, Integer, Date
+from sqlalchemy import ForeignKey, String, Date
 
 
 if TYPE_CHECKING:
     from digital_twin.models import Base, Persona
+
 
 class Occupation(Base):
     """SQLAlchemy model for the Occupation entity."""
 
     __tablename__ = "occupations"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     position: Mapped[str] = mapped_column(String(100), nullable=False)
     workplace: Mapped[str] = mapped_column(String(100), nullable=False)
     date_started: Mapped[date] = mapped_column(Date, nullable=False)
