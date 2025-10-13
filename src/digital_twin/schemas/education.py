@@ -123,6 +123,7 @@ class Education(EducationBase):
                     "date_started": "2022-10-01",
                     "date_finished": "2025-07-01",
                     "is_graduated": True,
+                    "grade": 17.2,
                     "id": 1,
                 },
             ]
