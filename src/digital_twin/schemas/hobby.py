@@ -1,9 +1,10 @@
 """
 Hobby data models
 """
-from pydantic import BaseModel, ConfigDict, Field, field_validator 
 from enum import Enum
 from typing import ClassVar
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class HobbyType(str, Enum):
@@ -37,6 +38,7 @@ class HobbyBase(BaseModel):
     
 
     @field_validator('name')
+    @classmethod
     def validate_name(cls, v: str) -> str:
         if v is not None and not v.strip():
             raise ValueError("Hobby name cannot be empty.")
@@ -57,6 +59,7 @@ class HobbyUpdate(BaseModel):
     freq: HobbyFrequency | None = Field(None, description="Frequency of engaging in the hobby")
 
     @field_validator('name')
+    @classmethod
     def validate_name(cls, v : str) -> str:
         if not v.strip():
             raise ValueError("Hobby name cannot be empty.")
