@@ -6,8 +6,9 @@ from sqlalchemy import ForeignKey, String
 if TYPE_CHECKING:
     from digital_twin.models import Base, Persona
 
+
 class Education(Base):
-    __tablename__ = 'educations'
+    __tablename__ = "educations"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     level: Mapped[str] = mapped_column(nullable=False)
