@@ -5,7 +5,7 @@ Education data models.
 from datetime import date
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from enum import Enum
-from typing import Optional
+from typing import ClassVar, Optional
 from typing_extensions import Self
 
 class EducationLevel(str, Enum):
@@ -51,6 +51,8 @@ class EducationBase(BaseModel):
         if self.date_finished and self.date_finished < self.date_started:
             raise ValueError("'date_finished' must be after 'date_started'.")
         return self
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(validate_assignment=True)
     
 class EducationCreate(EducationBase):
     """Model for creating a new education."""
