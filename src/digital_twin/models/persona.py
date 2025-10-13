@@ -1,6 +1,10 @@
+"""
+Persona SQLAlchemy model.
+"""
+
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import date
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 from sqlalchemy import ForeignKey, String
 
 if TYPE_CHECKING:
@@ -8,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class Persona(Base):
+    """SQLAlchemy model for the Persona entity."""
+
     __tablename__ = "personas"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -16,9 +22,9 @@ class Persona(Base):
     gender: Mapped[str] = mapped_column(String(100), nullable=False)
     nationality: Mapped[str] = mapped_column(String(100), nullable=False)
 
-    educations: Mapped["Education"] = relationship(back_populates="persona")
-    occupations: Mapped["Occupation"] = relationship(back_populates="persona")
-    hobbies: Mapped["Hobby"] = relationship(back_populates="persona")
+    educations: Mapped[List["Education"]] = relationship(back_populates="persona")
+    occupations: Mapped[List["Occupation"]] = relationship(back_populates="persona")
+    hobbies: Mapped[List["Hobby"]] = relationship(back_populates="persona")
 
     def __repr__(self):
         return f"<Persona(id={self.id}, name='{self.name}', birthdate='{self.birthdate}, nationality={self.nationality}')>"
