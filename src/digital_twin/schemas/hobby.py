@@ -1,9 +1,10 @@
 """
 Hobby data models
 """
-from pydantic import BaseModel, Field, field_validator 
+from pydantic import BaseModel, ConfigDict, Field, field_validator 
 from enum import Enum
-from typing import Optional
+from typing import ClassVar
+
 
 class HobbyType(str, Enum):
     """Enumeration of possible types of hobbies"""
@@ -17,11 +18,13 @@ class HobbyType(str, Enum):
     COLLECTING_BUILDING = "collecting_building" # includes collecting items, model building, puzzles
     OTHER = "other"                            # fallback for anything else
 
+
 class HobbyFrequency(str, Enum):
     """Enumeration of possible frequencies of engaging in a hobby"""
     OFTEN = "often"
     SOMETIMES = "sometimes"
     RARELY = "rarely"
+
 
 class HobbyBase(BaseModel):
     """Data model representing a hobby"""
@@ -31,7 +34,7 @@ class HobbyBase(BaseModel):
     freq : HobbyFrequency = Field(..., description="Frequency of engaging in the hobby")
 
     @field_validator('name')
-    def validate_name(cls, v: Optional[str]) -> Optional[str]:
+    def validate_name(cls, v: str) -> str:
         if v is not None and not v.strip():
             raise ValueError("Hobby name cannot be empty.")
         return v.strip() if v else v
@@ -42,11 +45,11 @@ class HobbyCreation(HobbyBase):
     pass
 
 
-class HobbyUpdate(HobbyBase):
+class HobbyUpdate(BaseModel):
 
-    type: Optional[HobbyType] = Field(None, description="Type of the hobby")
-    name: Optional[str] = Field(None, min_length=1, max_length=100, description="Name of the hobby")
-    freq: Optional[HobbyFrequency] = Field(None, description="Frequency of engaging in the hobby")
+    type: HobbyType | None = Field(None, description="Type of the hobby")
+    name: str | None = Field(None, min_length=1, max_length=100, description="Name of the hobby")
+    freq: HobbyFrequency | None = Field(None, description="Frequency of engaging in the hobby")
 
     @field_validator('name')
     def validate_name(cls, v : str) -> str:
@@ -54,11 +57,12 @@ class HobbyUpdate(HobbyBase):
             raise ValueError("Hobby name cannot be empty.")
         return v.strip()
 
+
 class Hobby(HobbyBase):
     """Data model representing a hobby with an ID"""
     id : int = Field(..., gt=0, description="Unique identifier for the hobby")
 
-    model_config = ConfigDict(
+    model_config: ClassVar[ConfigDict] = ConfigDict(
         from_attributes = True,
         json_schema_extra = {
             "example": {
