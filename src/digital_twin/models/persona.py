@@ -5,10 +5,11 @@ Persona SQLAlchemy model.
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import date
 from typing import TYPE_CHECKING, List
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import String
+from digital_twin.models import Base
 
 if TYPE_CHECKING:
-    from digital_twin.models import Base, Education, Occupation, Hobby
+    from digital_twin.models import Education, Occupation, Hobby
 
 
 class Persona(Base):

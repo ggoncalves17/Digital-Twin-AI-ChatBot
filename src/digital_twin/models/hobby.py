@@ -3,10 +3,10 @@
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
-
+from digital_twin.models import Base
 
 if TYPE_CHECKING:
-    from digital_twin.models import Base, Persona
+    from digital_twin.models import Persona
 
 
 class Hobby(Base):
