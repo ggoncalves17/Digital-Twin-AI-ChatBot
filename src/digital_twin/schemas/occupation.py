@@ -3,8 +3,8 @@ Occupation data models.
 """
 
 from datetime import date
-from pydantic import BaseModel, Field, field_validator, model_validator
-from typing import Optional
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
+from typing import ClassVar, Optional
 from typing_extensions import Self
 
 class OccupationBase(BaseModel):
@@ -33,6 +33,7 @@ class OccupationBase(BaseModel):
         if self.date_finished and self.date_finished < self.date_started:
             raise ValueError("date_finished must be after date_started.")
         return self
+    model_config: ClassVar[ConfigDict] = ConfigDict(validate_assignment=True)
     
 class OccupationCreate(OccupationBase):
     """Model for creating a new Occupation."""
@@ -62,6 +63,7 @@ class OccupationUpdate(BaseModel):
         if self.date_started and self.date_finished and self.date_finished < self.date_started:
             raise ValueError("date_finished must be after date_started.")
         return self
+    model_config: ClassVar[ConfigDict] = ConfigDict(validate_assignment=True)
     
 
 class Occupation(OccupationBase):
@@ -69,8 +71,9 @@ class Occupation(OccupationBase):
 
     id: int = Field(..., description="Occupation ID")
 
-    model_config = {
-        "json_schema_extra": {
+    model_config: ClassVar[ConfigDict] = ConfigDict(
+        from_attributes=True,
+        json_schema_extra= {
             "examples": [
                 {
                     "id": 1,
@@ -81,4 +84,4 @@ class Occupation(OccupationBase):
                 },
             ]
         }
-    }
+    )
