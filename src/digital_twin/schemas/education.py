@@ -3,7 +3,7 @@ Education data models.
 """
 
 from datetime import date
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from enum import Enum
 from typing import Optional
 from typing_extensions import Self
@@ -78,13 +78,20 @@ class EducationUpdate(BaseModel):
             raise ValueError("School name cannot be empty.")
         return v.strip()
 
+    @model_validator(mode='after')
+    def check_dates(self) -> Self:
+        if self.date_started is not None and self.date_finished is not None and self.date_finished < self.date_started:
+            raise ValueError("'date_finished' must be after 'date_started'.")
+        return self
+
 class Education(EducationBase):
     """Model for education responses."""
 
     id: int = Field(..., description="Unique education ID")
 
-    model_config = {
-        "json_schema_extra": {
+    model_config = ConfigDict(
+        from_attributes = True,
+        json_schema_extra = {
             "examples": [
                 {
                     "level": "Bachelor",
@@ -97,4 +104,4 @@ class Education(EducationBase):
                 },
             ]
         }
-    }
+    )
