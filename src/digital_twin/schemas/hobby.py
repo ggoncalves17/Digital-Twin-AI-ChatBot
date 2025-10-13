@@ -58,8 +58,9 @@ class Hobby(HobbyBase):
     """Data model representing a hobby with an ID"""
     id : int = Field(..., gt=0, description="Unique identifier for the hobby")
 
-    model_config = {
-        "json_schema_extra": {
+    model_config = ConfigDict(
+        from_attributes = True,
+        json_schema_extra = {
             "example": {
                 "id": 1,
                 "type": "sports_fitness",
@@ -67,4 +68,4 @@ class Hobby(HobbyBase):
                 "freq": "often"
             }
         }
-    }
+    )
