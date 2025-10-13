@@ -8,6 +8,7 @@ from typing import ClassVar
 
 class HobbyType(str, Enum):
     """Enumeration of possible types of hobbies"""
+
     SPORTS_FITNESS = "sports_fitness"          # includes gym, running, football, yoga, etc.
     ARTS_CRAFTS = "arts_crafts"                # includes drawing, painting, knitting, pottery, etc.
     MUSIC_PERFORMANCE = "music_performance"    # includes playing instruments, singing, dancing
@@ -15,12 +16,13 @@ class HobbyType(str, Enum):
     FOOD_COOKING = "food_cooking"              # includes cooking, baking, mixology
     TRAVEL_OUTDOORS = "travel_outdoors"        # includes travel, hiking, camping, nature walks
     READING_LEARNING = "reading_learning"      # includes reading, studying, personal development
-    COLLECTING_BUILDING = "collecting_building" # includes collecting items, model building, puzzles
+    COLLECTING_BUILDING = "collecting_building"# includes collecting items, model building, puzzles
     OTHER = "other"                            # fallback for anything else
 
 
 class HobbyFrequency(str, Enum):
     """Enumeration of possible frequencies of engaging in a hobby"""
+
     OFTEN = "often"
     SOMETIMES = "sometimes"
     RARELY = "rarely"
@@ -32,6 +34,7 @@ class HobbyBase(BaseModel):
     type : HobbyType = Field(..., description="Type of the hobby")
     name : str = Field(..., min_length=1, max_length=100, description="Name of the hobby")
     freq : HobbyFrequency = Field(..., description="Frequency of engaging in the hobby")
+    
 
     @field_validator('name')
     def validate_name(cls, v: str) -> str:
@@ -42,10 +45,12 @@ class HobbyBase(BaseModel):
 
 class HobbyCreation(HobbyBase):
     """Data model for creating a new hobby"""
+
     pass
 
 
 class HobbyUpdate(BaseModel):
+    """Model for updating an existing hobby."""
 
     type: HobbyType | None = Field(None, description="Type of the hobby")
     name: str | None = Field(None, min_length=1, max_length=100, description="Name of the hobby")
