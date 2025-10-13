@@ -22,12 +22,14 @@ class OccupationBase(BaseModel):
     date_finished: date | None = Field(None, description="Date when stopped working")
 
     @field_validator("position")
+    @classmethod
     def validate_position(cls, v: str) -> str:
         if not v.strip():
             raise ValueError("Position name cannot be empty.")
         return v.strip()
 
     @field_validator("workplace")
+    @classmethod
     def validate_workplace(cls, v: str) -> str:
         if not v.strip():
             raise ValueError("Workplace name cannot be empty.")
@@ -61,12 +63,14 @@ class OccupationUpdate(BaseModel):
     date_finished: date | None = Field(None, description="Date when stopped working")
 
     @field_validator("position")
+    @classmethod
     def validate_position(cls, v: str) -> str:
         if v is not None and not v.strip():
             raise ValueError("Position name cannot be empty.")
         return v.strip()
 
     @field_validator("workplace")
+    @classmethod
     def validate_workplace(cls, v: str) -> str:
         if v is not None and not v.strip():
             raise ValueError("Workplace name cannot be empty.")
