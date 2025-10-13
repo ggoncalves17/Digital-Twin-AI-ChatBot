@@ -52,6 +52,7 @@ class EducationBase(BaseModel):
     is_graduated: bool = Field(
         ..., description="Indicates whether the user has graduated"
     )
+    grade: float | None = Field(None, ge=0, le=20, description="Grade of the course")
 
     @model_validator(mode="after")
     def validate_is_graduated(self) -> Self:
@@ -93,6 +94,7 @@ class EducationUpdate(BaseModel):
     is_graduated: bool | None = Field(
         None, description="Indicates whether the user has graduated"
     )
+    grade: float | None = Field(None, ge=0, le=20, description="Grade of the course")
 
     @model_validator(mode="after")
     def check_dates(self) -> Self:
