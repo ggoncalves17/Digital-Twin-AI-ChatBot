@@ -3,11 +3,9 @@ from datetime import date, datetime
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from src.digital_twin.models.persona import Persona
-from src.digital_twin.schemas.persona import PersonaUpdate
+from digital_twin.models.persona import Persona
+from digital_twin.schemas.persona import PersonaCreate, PersonaUpdate
 
-# Mock database
-DBPersona: list[Persona] = list()
 
 def input_date(prompt: str) -> date:
     while True:
@@ -15,28 +13,25 @@ def input_date(prompt: str) -> date:
             d = input(prompt)
             return datetime.strptime(d, "%Y-%m-%d").date()
         except ValueError:
-            print("Formato inválido. Usa YYYY-MM-DD.")
+            print("Invalid format. Use YYYY-MM-DD.")
 
 
 def get_persona_by_id(db: Session, persona_id: int) -> Persona:
-    persona = db.query(DBPersona).filter(DBPersona.id == persona_id).first()
+    persona = db.query(Persona).filter(Persona.id == persona_id).first()
     if not persona:
-        raise HTTPException(status_code=404, detail="Persona não encontrada")
+        raise HTTPException(status_code=404, detail="Persona not found")
     return persona
 
-def create_new_persona(db: Session, persona: Persona) -> Persona:
-    existing_persona = db.query(DBPersona).filter(DBPersona.name == persona.name).first()
+def create_new_persona(db: Session, persona: PersonaCreate) -> Persona:
+    existing_persona = db.query(Persona).filter(Persona.name == persona.name).first()
     if existing_persona:
-        raise HTTPException(status_code=400, detail="Persona com esse nome já registada")
+        raise HTTPException(status_code=400, detail="Persona already registered")
 
-    new_persona = DBPersona(
+    new_persona = Persona(
         name=persona.name,
         birthdate=persona.birthdate,
         gender=persona.gender,
-        nationality=persona.nationality,
-        educations=persona.educations or [],
-        occupations=persona.occupations or [],
-        hobbies=persona.hobbies or [],
+        nationality=persona.nationality
     )
     db.add(new_persona)
     db.commit()
@@ -44,7 +39,7 @@ def create_new_persona(db: Session, persona: Persona) -> Persona:
     return new_persona
 
 def list_all_personas(db: Session) -> list[Persona]:
-    return db.query(DBPersona).all()
+    return db.query(Persona).all()
 
 def update_persona(db: Session, persona_id: int, update: PersonaUpdate) -> Persona:
     persona = get_persona_by_id(db, persona_id)

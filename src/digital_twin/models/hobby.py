@@ -1,8 +1,10 @@
 """SQLalchemy Model for hobby."""
 
-from sqlalchemy.orm import relationship, Mapped, mapped_column
 from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from digital_twin.models import Base
 
 if TYPE_CHECKING:
