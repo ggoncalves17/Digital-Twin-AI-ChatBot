@@ -4,12 +4,12 @@ from typing import Any
 from fastapi import FastAPI
 from sqlalchemy import text
 
-from digital_twin.config import Settings
+from digital_twin.config import settings
 from digital_twin.database import engine
 from digital_twin.models import Base
 
 
-def create_app(settings: Settings) -> FastAPI:
+def create_app() -> FastAPI:
     return FastAPI(
         title=settings.PROJECT_NAME,
         description=settings.DESCRIPTION,
@@ -19,8 +19,7 @@ def create_app(settings: Settings) -> FastAPI:
 
 
 # Instantiate FastAPI
-settings = Settings()
-app = create_app(settings)
+app = create_app()
 
 # TODO include routers
 
