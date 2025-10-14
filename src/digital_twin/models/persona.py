@@ -2,14 +2,16 @@
 Persona SQLAlchemy model.
 """
 
-from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import date
 from typing import TYPE_CHECKING, List
+
 from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from digital_twin.models import Base
 
 if TYPE_CHECKING:
-    from digital_twin.models import Education, Occupation, Hobby
+    from digital_twin.models import Education, Hobby, Occupation
 
 
 class Persona(Base):
