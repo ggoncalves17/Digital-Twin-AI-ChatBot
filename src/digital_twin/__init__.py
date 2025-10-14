@@ -52,5 +52,3 @@ def health_check() -> dict[str, Any]:
 def main():
     print(f"Hello from {settings.PROJECT_NAME}!")
     print(f"{settings.DATABASE_URL}")
-
-    Base.metadata.create_all(engine)
