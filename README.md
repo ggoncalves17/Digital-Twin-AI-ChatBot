@@ -10,3 +10,9 @@
 ```bash
 uv run digital-twin
 ```
+
+## How to run the tests
+```bash
+uv run pytest
+```
+It will aslo be run whenever the main branch is updated. The result will appear in GitHub Actions.
