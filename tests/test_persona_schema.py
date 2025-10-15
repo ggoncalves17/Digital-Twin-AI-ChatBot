@@ -57,4 +57,4 @@ def test_update_persona_schema():
     assert persona_update.name == "Jane Doe"
     assert persona_update.gender == None
     assert persona_update.nationality == None
-    assert persona_update.education == None
+

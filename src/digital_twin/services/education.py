@@ -10,12 +10,17 @@ class EducationService:
     """Hobby abstraction layer between ORM and API endpoints."""
 
     @staticmethod
-    def create_education(db: Session, education: EducationCreate) -> Education:
+    def create_education(db: Session, education: EducationCreate) -> Education | None:
         new_education = Education(**education.model_dump())
-        db.add(new_education)
-        db.commit()
-        db.refresh(new_education)
-        return new_education
+
+        try:
+            db.add(new_education)
+            db.commit()
+            db.refresh(new_education)
+
+            return new_education
+        except:
+            return None
 
     @staticmethod
     def get_education(db: Session, id: int) -> Education | None:
@@ -39,7 +44,7 @@ class EducationService:
         return education
 
     @staticmethod
-    def delete_education(db: Session, education_id: int) -> bool:
+    def delete_education(db: Session, id: int) -> bool:
         education = db.query(Education).filter(Education.id == id).first()
         if not education:
             return False

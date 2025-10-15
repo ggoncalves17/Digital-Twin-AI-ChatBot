@@ -7,9 +7,19 @@
 - [Trello](https://trello.com/invite/b/68df8720f3a0b9358e3185e0/ATTIf4dc42546f45cbc8140669f8207642abE25BF06A/digital-twin) for project kanban
 
 ## How to run
+You need to have Docker Desktop up and runningon your machine and a .env file, there is an exmample on branch, then you need to type on your terminal 
 ```bash
-uv run digital-twin
+docker compose up --watch
 ```
+
+The watch flag makes so ... 
+
+## How to close docker
+Just run on your terminal
+```bash
+docker compose down 
+```
+This is Kill your DataBase, it will only chage when we create Volumes
 
 ## How to run the tests
 ```bash

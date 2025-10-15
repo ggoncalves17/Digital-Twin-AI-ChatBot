@@ -12,7 +12,14 @@ router = APIRouter(prefix="/hobbies", tags=["hobby"])
 
 @router.post("/", response_model=Hobby)
 def create_hobby(hobby: HobbyCreate, db: Annotated[Session, Depends(get_db)]):
-    return HobbyService.create_hobby(db, hobby)
+
+    new_hobby = HobbyService.create_hobby(db, hobby)
+
+    if new_hobby is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Persona id not found"
+        )    
+    return new_hobby
 
 
 @router.get("/", response_model=list[Hobby])
@@ -20,7 +27,13 @@ def get_hobbies(
     persona: Annotated[int, Query(description="Persona ID")],
     db: Annotated[Session, Depends(get_db)],
 ):
-    return HobbyService.get_hobbies_by_persona(db, persona)
+    hobby = HobbyService.get_hobbies_by_persona(db, persona)
+
+    if hobby is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Persona id not found"
+        )
+    return hobby
 
 
 @router.get("/{id}", response_model=Hobby)

@@ -18,7 +18,13 @@ router = APIRouter(prefix="/occupations", tags=["occupation"])
 def create_occupation(
     occupation: OccupationCreate, db: Annotated[Session, Depends(get_db)]
 ):
-    return OccupationService.create_occupation(db, occupation)
+    occupation = OccupationService.create_occupation(db, occupation)
+    
+    if occupation is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Persona id not found"
+        )
+    return occupation
 
 
 @router.get("/", response_model=list[Occupation])
@@ -26,7 +32,13 @@ def get_occupations_by_persona(
     persona: Annotated[int, Query(description="Persona ID")],
     db: Annotated[Session, Depends(get_db)],
 ):
-    return OccupationService.get_occupations_by_persona(db, persona)
+    occupation = OccupationService.get_occupations_by_persona(db, persona)
+
+    if occupation is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Persona id not found"
+        )
+    return occupation
 
 
 @router.get("/{id}", response_model=Occupation)

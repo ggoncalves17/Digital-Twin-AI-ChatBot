@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from sqlalchemy.exc import IntegrityError
 
 from sqlalchemy.orm import Session
 
@@ -20,12 +21,17 @@ class OccupationService:
     """Occupation abstraction layer between ORM and API endpoints."""
 
     @staticmethod
-    def create_occupation(db: Session, occupation: OccupationCreate) -> Occupation:
+    def create_occupation(db: Session, occupation: OccupationCreate) -> Occupation | None:
         new_occupation = Occupation(**occupation.model_dump())
-        db.add(new_occupation)
-        db.commit()
-        db.refresh(new_occupation)
-        return new_occupation
+        try:
+            db.add(new_occupation)
+            db.commit()
+            db.refresh(new_occupation)  
+
+            return new_occupation
+        except IntegrityError:
+            return None
+
 
     @staticmethod
     def get_occupation(db: Session, id: int) -> Occupation | None:
@@ -56,7 +62,7 @@ class OccupationService:
         return occupation
 
     @staticmethod
-    def delete_occupation(db: Session, occupation_id: int) -> bool:
+    def delete_occupation(db: Session, id: int) -> bool:
         occupation = db.query(Occupation).filter(Occupation.id == id).first()
         if not occupation:
             return False
