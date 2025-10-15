@@ -51,7 +51,7 @@ class PersonaService:
 
     @staticmethod
     def delete_persona(db: Session, persona_id: int) -> bool:
-        persona = db.query(Persona).filter(Persona.id == id).first()
+        persona = db.query(Persona).filter(Persona.id == persona_id).first()
         if not persona:
             return False
         db.delete(persona)

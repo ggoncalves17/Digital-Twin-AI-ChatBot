@@ -1,5 +1,5 @@
 from datetime import date
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated, ClassVar
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field
@@ -7,7 +7,7 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, Field
 from digital_twin.schemas import Education, Hobby, Occupation
 
 
-class GenderEnum(Enum):
+class GenderEnum(StrEnum):
     MALE = "Male"
     FEMALE = "Female"
     OTHER = "Other"
@@ -28,19 +28,11 @@ class PersonaBase(BaseModel):
     )
     gender: GenderEnum = Field(description="Persona's gender")
     nationality: str = Field(description="Persona's nationality")
-    education: list[Education] = Field(
-        default_factory=list, description="Persona's academic career"
-    )
-    occupations: list[Occupation] = Field(
-        default_factory=list, description="Persona's work experience"
-    )
-    hobbies: list[Hobby] = Field(
-        default_factory=list, description="Persona's hobbies"
-    )
 
 
 class PersonaCreate(PersonaBase):
     """Persona creation schema."""
+
     pass
 
 
@@ -62,11 +54,14 @@ class Persona(PersonaBase):
     """Persona response schema."""
 
     id: Annotated[int, Field(description="Unique Persona ID")]
+    educations: list[Education] = Field(description="Persona's academic career")
+    occupations: list[Occupation] = Field(description="Persona's work experience")
+    hobbies: list[Hobby] = Field(description="Persona's hobbies")
 
     model_config: ClassVar[ConfigDict] = ConfigDict(
         from_attributes=True,
         json_schema_extra={
-            "examples": {
+            "example": {
                 "id": 1,
                 "name": "John Doe",
                 "birthdate": "2000-01-31",
@@ -78,4 +73,3 @@ class Persona(PersonaBase):
             }
         },
     )
-
