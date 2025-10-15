@@ -20,6 +20,7 @@ def create_app() -> FastAPI:
 # Instantiate FastAPI
 app = create_app()
 
+# TODO include routers
 
 @app.get("/db")
 def db_version():
