@@ -10,12 +10,16 @@ class HobbyService:
     """Hobby abstraction layer between ORM and API endpoints."""
 
     @staticmethod
-    def create_hobby(db: Session, hobby: HobbyCreate) -> Hobby:
+    def create_hobby(db: Session, hobby: HobbyCreate) -> Hobby | None:
         new_hobby = Hobby(**hobby.model_dump())
-        db.add(new_hobby)
-        db.commit()
-        db.refresh(new_hobby)
-        return new_hobby
+        try:
+            db.add(new_hobby)
+            db.commit()
+            db.refresh(new_hobby)
+            
+            return new_hobby
+        except:
+            return None
 
     @staticmethod
     def get_hobby(db: Session, hobby_id: int) -> Hobby | None:
