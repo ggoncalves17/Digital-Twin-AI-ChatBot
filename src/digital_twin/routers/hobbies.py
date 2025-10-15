@@ -7,7 +7,7 @@ from digital_twin.database import get_db
 from digital_twin.schemas.hobby import Hobby, HobbyCreate, HobbyUpdate
 from digital_twin.services.hobby import HobbyService
 
-router = APIRouter(prefix="/hobbies", tags=["hobbies"])
+router = APIRouter(prefix="/hobbies", tags=["hobby"])
 
 
 @router.post("/", response_model=Hobby)

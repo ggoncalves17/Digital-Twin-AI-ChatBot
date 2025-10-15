@@ -7,7 +7,7 @@ from digital_twin.database import get_db
 from digital_twin.schemas.education import Education, EducationCreate, EducationUpdate
 from digital_twin.services.education import EducationService
 
-router = APIRouter(prefix="/hobbies", tags=["hobbies"])
+router = APIRouter(prefix="/educations", tags=["education"])
 
 
 @router.post("/", response_model=Education)

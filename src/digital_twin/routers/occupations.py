@@ -11,7 +11,7 @@ from digital_twin.schemas.occupation import (
 )
 from digital_twin.services.occupation import OccupationService
 
-router = APIRouter(prefix="/hobbies", tags=["hobbies"])
+router = APIRouter(prefix="/occupations", tags=["occupation"])
 
 
 @router.post("/", response_model=Occupation)

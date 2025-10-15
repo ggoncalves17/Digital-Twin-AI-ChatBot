@@ -8,7 +8,7 @@ from digital_twin.database import get_db
 from digital_twin.schemas.persona import Persona, PersonaCreate, PersonaUpdate
 from digital_twin.services.persona import PersonaService
 
-router = APIRouter(prefix="/personas", tags=["personas"])
+router = APIRouter(prefix="/personas", tags=["persona"])
 
 
 @router.get("/", response_model=list[Persona])
