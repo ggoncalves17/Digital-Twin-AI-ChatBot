@@ -16,7 +16,10 @@ def create_hobby(hobby: HobbyCreate, db: Annotated[Session, Depends(get_db)]):
 
 
 @router.get("/", response_model=list[Hobby])
-def get_hobbies(persona: Annotated[int, Query(description="Persona ID")], db: Annotated[Session, Depends(get_db)]):
+def get_hobbies(
+    persona: Annotated[int, Query(description="Persona ID")],
+    db: Annotated[Session, Depends(get_db)],
+):
     return HobbyService.get_hobbies_by_persona(db, persona)
 
 
