@@ -74,7 +74,7 @@ class EducationBase(BaseModel):
 class EducationCreate(EducationBase):
     """Model for creating a new education."""
 
-    pass
+    persona_id: int = Field(gt=0)
 
 
 class EducationUpdate(BaseModel):

@@ -1,67 +1,59 @@
-from datetime import date, datetime
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session, joinedload
 
-from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from digital_twin.models.persona import Persona
+from digital_twin.schemas.persona import PersonaCreate, PersonaUpdate
 
-from src.digital_twin.models.persona import Persona
-from src.digital_twin.schemas.persona import PersonaUpdate
 
-# Mock database
-DBPersona: list[Persona] = list()
+class PersonaService:
+    """Persona abstraction layer between ORM and API endpoints."""
 
-def input_date(prompt: str) -> date:
-    while True:
+    @staticmethod
+    def create_persona(db: Session, persona: PersonaCreate) -> Persona | None:
+        new_persona = Persona(**persona.model_dump())
         try:
-            d = input(prompt)
-            return datetime.strptime(d, "%Y-%m-%d").date()
-        except ValueError:
-            print("Formato inválido. Usa YYYY-MM-DD.")
+            db.add(new_persona)
+        except IntegrityError:
+            return None
+        db.commit()
+        db.refresh(new_persona)
+        return new_persona
 
+    @staticmethod
+    def get_persona(db: Session, id: int) -> Persona | None:
+        return (
+            db.query(Persona)
+            .options(
+                joinedload(Persona.educations),
+                joinedload(Persona.occupations),
+                joinedload(Persona.hobbies),
+            )
+            .filter(Persona.id == id)
+            .first()
+        )
 
-def get_persona_by_id(db: Session, persona_id: int) -> Persona:
-    persona = db.query(DBPersona).filter(DBPersona.id == persona_id).first()
-    if not persona:
-        raise HTTPException(status_code=404, detail="Persona não encontrada")
-    return persona
+    @staticmethod
+    def get_personas(db: Session) -> list[Persona]:
+        return db.query(Persona).order_by(Persona.id).all()
 
-def create_new_persona(db: Session, persona: Persona) -> Persona:
-    existing_persona = db.query(DBPersona).filter(DBPersona.name == persona.name).first()
-    if existing_persona:
-        raise HTTPException(status_code=400, detail="Persona com esse nome já registada")
+    @staticmethod
+    def update_persona(db: Session, id: int, update: PersonaUpdate) -> Persona | None:
+        persona = db.query(Persona).filter(Persona.id == id).first()
+        if not persona:
+            return None
 
-    new_persona = DBPersona(
-        name=persona.name,
-        birthdate=persona.birthdate,
-        gender=persona.gender,
-        nationality=persona.nationality,
-        educations=persona.educations or [],
-        occupations=persona.occupations or [],
-        hobbies=persona.hobbies or [],
-    )
-    db.add(new_persona)
-    db.commit()
-    db.refresh(new_persona)
-    return new_persona
+        for k, v in update.model_dump(exclude_unset=True).items():
+            setattr(persona, k, v)
 
-def list_all_personas(db: Session) -> list[Persona]:
-    return db.query(DBPersona).all()
+        db.commit()
+        db.refresh(persona)
+        return persona
 
-def update_persona(db: Session, persona_id: int, update: PersonaUpdate) -> Persona:
-    persona = get_persona_by_id(db, persona_id)
-    if not persona:
-        raise HTTPException(status_code=404, detail="Persona not found")
-
-    update_data = update.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(persona, field, value)
-
-    db.commit()
-    db.refresh(persona)
-    return persona
-
-def delete_persona(db: Session, persona_id: int) -> None:
-    persona = get_persona_by_id(db, persona_id)
-    if not persona:
-        raise HTTPException(status_code=404, detail="Persona not found")
-    db.delete(persona)
-    db.commit()
+    @staticmethod
+    def delete_persona(db: Session, persona_id: int) -> bool:
+        persona = db.query(Persona).filter(Persona.id == id).first()
+        if not persona:
+            return False
+        db.delete(persona)
+        db.commit()
+        return True
