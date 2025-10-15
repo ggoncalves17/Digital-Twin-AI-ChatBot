@@ -14,7 +14,15 @@ router = APIRouter(prefix="/educations", tags=["education"])
 def create_education(
     education: EducationCreate, db: Annotated[Session, Depends(get_db)]
 ):
-    return EducationService.create_education(db, education)
+    
+    new_education = EducationService.create_education(db, education)
+
+    if new_education is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Persona id not found"
+        )
+
+    return new_education
 
 
 @router.get("/", response_model=list[Education])
@@ -22,7 +30,13 @@ def get_educations_by_persona(
     persona: Annotated[int, Query(description="Persona ID")],
     db: Annotated[Session, Depends(get_db)],
 ):
-    return EducationService.get_educations_by_persona(db, persona)
+    education = EducationService.get_educations_by_persona(db, persona)
+    
+    if education is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Persona id not found"
+        )
+    return education
 
 
 @router.get("/{id}", response_model=Education)
