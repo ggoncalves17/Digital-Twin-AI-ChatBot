@@ -32,7 +32,6 @@ class PersonaBase(BaseModel):
 
 class PersonaCreate(PersonaBase):
     """Persona creation schema."""
-
     pass
 
 
