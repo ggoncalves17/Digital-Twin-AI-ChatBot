@@ -56,7 +56,7 @@ class OccupationService:
         return occupation
 
     @staticmethod
-    def delete_occupation(db: Session, occupation_id: int) -> bool:
+    def delete_occupation(db: Session, id: int) -> bool:
         occupation = db.query(Occupation).filter(Occupation.id == id).first()
         if not occupation:
             return False

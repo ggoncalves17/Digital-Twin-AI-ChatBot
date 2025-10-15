@@ -39,7 +39,7 @@ class EducationService:
         return education
 
     @staticmethod
-    def delete_education(db: Session, education_id: int) -> bool:
+    def delete_education(db: Session, id: int) -> bool:
         education = db.query(Education).filter(Education.id == id).first()
         if not education:
             return False
