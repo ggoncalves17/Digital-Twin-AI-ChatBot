@@ -50,8 +50,8 @@ class PersonaService:
         return persona
 
     @staticmethod
-    def delete_persona(db: Session, persona_id: int) -> bool:
-        persona = db.query(Persona).filter(Persona.id == persona_id).first()
+    def delete_persona(db: Session, id: int) -> bool:
+        persona = db.query(Persona).filter(Persona.id == id).first()
         if not persona:
             return False
         db.delete(persona)

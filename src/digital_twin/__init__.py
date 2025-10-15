@@ -34,9 +34,9 @@ app = create_app()
 
 # TODO include routers
 router = APIRouter(prefix=settings.API_V1_STR)
-# router.include_router(education.router)
+router.include_router(educations.router)
 router.include_router(hobbies.router)
-# router.include_router(occupations.router)
+router.include_router(occupations.router)
 router.include_router(personas.router)
 app.include_router(router)
 
