@@ -6,7 +6,6 @@ from sqlalchemy import text
 
 from digital_twin.config import settings
 from digital_twin.database import engine
-from digital_twin.models import Base
 
 
 def create_app() -> FastAPI:
@@ -22,7 +21,6 @@ def create_app() -> FastAPI:
 app = create_app()
 
 # TODO include routers
-
 
 @app.get("/db")
 def db_version():

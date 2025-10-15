@@ -47,6 +47,7 @@ class OccupationBase(BaseModel):
 class OccupationCreate(OccupationBase):
     """Model for creating a new Occupation."""
 
+    persona_id: int = Field(gt=0)
     pass
 
 
