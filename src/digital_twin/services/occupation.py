@@ -1,10 +1,10 @@
 from datetime import date, datetime
 
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from digital_twin.models.occupation import Occupation
 from digital_twin.schemas.occupation import OccupationCreate, OccupationUpdate
+from digital_twin.services.persona import PersonaService
 
 
 def input_date(prompt: str) -> date:
@@ -15,48 +15,52 @@ def input_date(prompt: str) -> date:
         except ValueError:
             print("Invalid format. Use YYYY-MM-DD.")
 
-def get_occupation_by_id(db: Session, occupation_id: int) -> Occupation:
-    occupation = db.query(Occupation).filter(Occupation.id == occupation_id).first()
-    if not occupation:
-        raise HTTPException(status_code=404, detail="Occupation not found")
-    return occupation
 
-def create_new_occupation(db: Session, occupation: OccupationCreate) -> Occupation:
-    existing_occupation = db.query(Occupation).filter(Occupation.name == occupation.name).first()
-    if existing_occupation:
-        raise HTTPException(status_code=400, detail="Occupation already registered")
+class OccupationService:
+    """Occupation abstraction layer between ORM and API endpoints."""
 
-    new_occupation = Occupation(
-        position=occupation.position,
-        workplace=occupation.workplace,
-        date_started=occupation.date_started,
-        date_finished=occupation.date_finished,
-        persona_id=occupation.persona_id
-    )
-    db.add(new_occupation)
-    db.commit()
-    db.refresh(new_occupation)
-    return new_occupation
+    @staticmethod
+    def create_occupation(db: Session, occupation: OccupationCreate) -> Occupation:
+        new_occupation = Occupation(**occupation.model_dump())
+        db.add(new_occupation)
+        db.commit()
+        db.refresh(new_occupation)
+        return new_occupation
 
-def list_all_occupations(db: Session) -> list[Occupation]:
-    return db.query(Occupation).all()
+    @staticmethod
+    def get_occupation(db: Session, id: int) -> Occupation | None:
+        return db.query(Occupation).filter(Occupation.id == id).first()
 
-def update_occupation(db: Session, occupation_id: int, update: OccupationUpdate) -> Occupation:
-    occupation = get_occupation_by_id(db, occupation_id)
-    if not occupation:
-        raise HTTPException(status_code=404, detail="Occupation not found")
+    @staticmethod
+    def get_occupations_by_persona(db: Session, persona_id: int) -> list[Occupation] | None:
+        if not PersonaService.get_persona(db, persona_id):
+            return None
+        return (
+            db.query(Occupation)
+            .filter(Occupation.persona_id == persona_id)
+            .order_by(Occupation.date_started)
+            .all()
+        )
 
-    update_data = update.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(occupation, field, value)
+    @staticmethod
+    def update_occupation(
+        db: Session, id: int, update: OccupationUpdate
+    ) -> Occupation | None:
+        occupation = db.query(Occupation).filter(Occupation.id == id).first()
+        if occupation:
+            for k, v in update.model_dump(exclude_unset=True).items():
+                setattr(occupation, k, v)
+            db.commit()
+            db.refresh(occupation)
 
-    db.commit()
-    db.refresh(occupation)
-    return occupation
+        return occupation
 
-def delete_occupation(db: Session, occupation_id: int) -> None:
-    occupation = get_occupation_by_id(db, occupation_id)
-    if not occupation:
-        raise HTTPException(status_code=404, detail="Occupation not found")
-    db.delete(occupation)
-    db.commit()
+    @staticmethod
+    def delete_occupation(db: Session, occupation_id: int) -> bool:
+        occupation = db.query(Occupation).filter(Occupation.id == id).first()
+        if not occupation:
+            return False
+
+        db.delete(occupation)
+        db.commit()
+        return True

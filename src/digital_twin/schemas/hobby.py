@@ -45,10 +45,10 @@ class HobbyBase(BaseModel):
         return v.strip() if v else v
     
 
-class HobbyCreation(HobbyBase):
+class HobbyCreate(HobbyBase):
     """Data model for creating a new hobby"""
 
-    pass
+    persona_id: int = Field(gt=0)
 
 
 class HobbyUpdate(BaseModel):

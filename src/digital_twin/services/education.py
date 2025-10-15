@@ -3,53 +3,48 @@ from sqlalchemy.orm import Session
 
 from digital_twin.models.education import Education
 from digital_twin.schemas.education import EducationCreate, EducationUpdate
+from digital_twin.services.persona import PersonaService
 
 
-def get_education_by_id(db: Session, education_id: int) -> Education:
-    education = db.query(Education).filter(Education.id == education_id).first()
-    if not education:
-        raise HTTPException(status_code=404, detail="Education not found")
-    return education
+class EducationService:
+    """Hobby abstraction layer between ORM and API endpoints."""
 
-def create_new_education(db: Session, education: EducationCreate) -> Education:
-    existing_education = db.query(Education).filter(Education.name == education.name).first()
-    if existing_education:
-        raise HTTPException(status_code=400, detail="Education already registered")
+    @staticmethod
+    def create_education(db: Session, education: EducationCreate) -> Education:
+        new_education = Education(**education.model_dump())
+        db.add(new_education)
+        db.commit()
+        db.refresh(new_education)
+        return new_education
 
-    new_education = Education(
-        level=education.level,
-        course=education.course,
-        school=education.school,
-        date_started=education.date_started,
-        date_finished=education.date_finished,
-        is_graduated=education.is_graduated,
-        grade=education.grade,
-        persona_id=education.persona_id,
-    )
-    db.add(new_education)
-    db.commit()
-    db.refresh(new_education)
-    return new_education
+    @staticmethod
+    def get_education(db: Session, id: int) -> Education | None:
+        return db.query(Education).filter(Education.id == id).first()
 
-def list_all_educations(db: Session) -> list[Education]:
-    return db.query(Education).all()
+    @staticmethod
+    def get_educations_by_persona(db: Session, persona_id: int) -> list[Education] | None:
+        if not PersonaService.get_persona(db, persona_id):
+            return None
+        return db.query(Education).filter(Education.persona_id == persona_id).all()
 
-def update_education(db: Session, education_id: int, update: EducationUpdate) -> Education:
-    education = get_education_by_id(db, education_id)
-    if not education:
-        raise HTTPException(status_code=404, detail="Education not found")
+    @staticmethod
+    def update_education(db: Session, id: int, update: EducationUpdate) -> Education | None:
+        education = db.query(Education).filter(Education.id == id).first()
+        if education:
+            for k, v in update.model_dump(exclude_unset=True).items():
+                setattr(education, k, v)
+            db.commit()
+            db.refresh(education)
 
-    update_data = update.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(education, field, value)
+        return education
 
-    db.commit()
-    db.refresh(education)
-    return education
+    @staticmethod
+    def delete_education(db: Session, education_id: int) -> bool:
+        education = db.query(Education).filter(Education.id == id).first()
+        if not education:
+            return False
 
-def delete_education(db: Session, education_id: int) -> None:
-    education = get_education_by_id(db, education_id)
-    if not education:
-        raise HTTPException(status_code=404, detail="Education not found")
-    db.delete(education)
-    db.commit()
+        db.delete(education)
+        db.commit()
+        return True
+
