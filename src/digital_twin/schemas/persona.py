@@ -44,9 +44,6 @@ class PersonaUpdate(BaseModel):
     birthdate: Annotated[date | None, AfterValidator(validate_birthdate)] = Field(None)
     gender: GenderEnum | None = Field(None)
     nationality: str | None = Field(None)
-    education: list[Education] | None = Field(None)
-    occupations: list[Occupation] | None = Field(None)
-    hobbies: list[Hobby] | None = Field(None)
 
 
 class Persona(PersonaBase):
