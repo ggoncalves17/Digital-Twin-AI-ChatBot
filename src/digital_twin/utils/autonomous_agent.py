@@ -70,10 +70,10 @@ Begin!
 Question: {input}
 Thought: {agent_scratchpad}
 """)
-
+llm=get_model()
 # Create agent
 agent = create_react_agent(
-    llm=get_model(),
+    llm=llm,
     tools=agent_tools,
     prompt=custom_react_prompt
 )
