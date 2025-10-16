@@ -19,7 +19,6 @@ Just run on your terminal
 ```bash
 docker compose down 
 ```
-This is Kill your DataBase, it will only chage when we create Volumes
 
 ## How to run the tests
 ```bash
