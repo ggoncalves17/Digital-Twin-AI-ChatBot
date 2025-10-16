@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from ..utils.autonomous_agent import agent_executor
+from ..utils.autonomous_agent import get_agent_executor
 
 router = APIRouter(prefix="/agent", tags=["agent"])
 
@@ -13,7 +13,7 @@ async def ask_agent(query: AgentQuery):
     Envia uma questão para o agente autônomo e devolve a resposta.
     """
     try:
-        response = await agent_executor.ainvoke({"input": query.question})
+        response = await get_agent_executor().ainvoke({"input": query.question})
         return {"question": query.question, "answer": response["output"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

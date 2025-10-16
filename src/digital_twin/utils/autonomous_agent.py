@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-api_key = os.getenv("GOOGLE_KEY")
+api_key = os.getenv("GOOGLE_API_KEY")
 # Initialize model with function calling support
 def get_model():
     model = ChatGoogleGenerativeAI(
@@ -70,22 +70,20 @@ Begin!
 Question: {input}
 Thought: {agent_scratchpad}
 """)
-llm=get_model()
-# Create agent
-agent = create_react_agent(
-    llm=llm,
-    tools=agent_tools,
-    prompt=custom_react_prompt
-)
-
-# Create agent executor
-agent_executor = AgentExecutor(
-    agent=agent,
-    tools=agent_tools,
-    verbose=True,  # Show reasoning process
-    handle_parsing_errors=True,
-    max_iterations=10,  # Prevent infinite loops
-    early_stopping_method="generate"
-)
+def get_agent_executor():
+    llm = get_model()
+    agent = create_react_agent(
+        llm=llm,
+        tools=agent_tools,
+        prompt=custom_react_prompt
+    )
+    return AgentExecutor(
+        agent=agent,
+        tools=agent_tools,
+        verbose=True,
+        handle_parsing_errors=True,
+        max_iterations=10,
+        early_stopping_method="generate"
+    )
 
 # print("✓ Agent created and ready")
