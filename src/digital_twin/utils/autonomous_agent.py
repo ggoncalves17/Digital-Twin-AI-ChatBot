@@ -8,13 +8,14 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 # Initialize model with function calling support
-model = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
-    google_api_key=os.getenv("GOOGLE_API_KEY"),
-    temperature=0,  # Deterministic for reasoning
-    verbose=True
-)
-
+def get_model():
+    model = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        google_api_key=os.getenv("GOOGLE_API_KEY"),
+        temperature=0,  # Deterministic for reasoning
+        verbose=True
+    )
+    return model
 # print("✓ Model initialized")
 
 # ============================================
@@ -71,7 +72,7 @@ Thought: {agent_scratchpad}
 
 # Create agent
 agent = create_react_agent(
-    llm=model,
+    llm=get_model(),
     tools=agent_tools,
     prompt=custom_react_prompt
 )
