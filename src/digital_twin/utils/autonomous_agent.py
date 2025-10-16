@@ -7,11 +7,12 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+api_key = os.getenv("GOOGLE_KEY")
 # Initialize model with function calling support
 def get_model():
     model = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
-        google_api_key=os.getenv("GOOGLE_API_KEY"),
+        google_api_key=api_key,
         temperature=0,  # Deterministic for reasoning
         verbose=True
     )
@@ -21,7 +22,7 @@ def get_model():
 # ============================================
 # Tool 1: Web Search
 # ============================================
-from langchain.tools import DuckDuckGoSearchRun
+from langchain_community.tools import DuckDuckGoSearchRun
 
 search_tool = Tool(
     name="WebSearch",
