@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-api_key = os.getenv("GOOGLE_API_KEY")
+api_key = os.getenv("GOOGLE_KEY")
 # Initialize model with function calling support
 def get_model():
     model = ChatGoogleGenerativeAI(
