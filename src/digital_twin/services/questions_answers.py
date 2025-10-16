@@ -11,10 +11,12 @@ load_dotenv()
 
 api_key = os.getenv("GOOGLE_KEY")
 
-model = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
-    google_api_key=api_key
-)
+def get_model():
+    model = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        google_api_key=api_key
+    )
+    return model
 
 template = ChatPromptTemplate.from_messages([
     ("system", """You are a person named {name}, you are {nationality}, born in {birthdate}, of the {gender} gender.
@@ -86,6 +88,8 @@ class QAService:
             "input": question.question
         }
         
+        model = get_model()
+
         content_chain = template | model | StrOutputParser()
 
         result = content_chain.invoke(persona_data)
