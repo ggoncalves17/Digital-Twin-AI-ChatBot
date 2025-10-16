@@ -16,6 +16,7 @@ dependencies = [
     "langchain-google-genai>=2.1.12",
     "duckduckgo-search>=8.1.1",
     "langchain-community>=0.3.31",
+    "ddgs>=9.6.1",
 ] 
 
 [project.scripts]
