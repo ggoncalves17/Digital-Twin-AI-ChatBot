@@ -1,18 +1,17 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.agents import AgentExecutor, create_react_agent
-from langchain.tools import Tool
-from langchain.prompts import PromptTemplate # For custom React prompt
 import os
+
 from dotenv import load_dotenv
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain.prompts import PromptTemplate  # For custom React prompt
+from langchain.tools import Tool
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Load environment variables
 load_dotenv()
-api_key = os.getenv("GOOGLE_KEY")
 # Initialize model with function calling support
 def get_model():
     model = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
-        google_api_key=api_key,
         temperature=0,  # Deterministic for reasoning
         verbose=True
     )
