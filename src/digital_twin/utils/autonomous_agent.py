@@ -8,11 +8,13 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Load environment variables
 load_dotenv()
+api_key = os.getenv("GOOGLE_KEY")
 # Initialize model with function calling support
 def get_model():
     model = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
         temperature=0,  # Deterministic for reasoning
+        google_api_key=api_key,
         verbose=True
     )
     return model
