@@ -8,6 +8,7 @@ from typing import Annotated, ClassVar
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field
 
+from digital_twin.schemas import Chat
 
 def validate_birthdate(v: date) -> date:
     if date.today() < v:
@@ -52,6 +53,7 @@ class User(UserBase):
     """User response schema."""
 
     id: Annotated[int, Field(description="Unique User ID")]
+    chats: list[Chat] = Field(description="User's chats")
 
     model_config: ClassVar[ConfigDict] = ConfigDict(
         from_attributes=True,
@@ -61,6 +63,7 @@ class User(UserBase):
                 "name": "John Doe",
                 "birthdate": "2000-01-31",
                 "email": "john.doe@gmail.com",
+                "chats": [],
             }
         },
     )
