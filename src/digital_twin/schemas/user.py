@@ -4,7 +4,7 @@ User data models
 
 import re
 from datetime import date
-from typing import Annotated, ClassVar, Optional
+from typing import Annotated, ClassVar
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field
 
@@ -46,8 +46,7 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     """User update schema."""
 
-    name: Optional[str] = Field(min_length=1, max_length=100, description="User's name")
-
+    name: str | None = Field(None, min_length=1, max_length=100, description="User's name")
 
 class User(UserBase):
     """User response schema."""
