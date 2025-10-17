@@ -2,11 +2,11 @@
 User data models
 """
 
-from datetime import date
-from enum import StrEnum
-from typing import Annotated, ClassVar, Optional
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, EmailStr, validator
 import re
+from datetime import date
+from typing import Annotated, ClassVar, Optional
+
+from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field
 
 
 def validate_birthdate(v: date) -> date:
