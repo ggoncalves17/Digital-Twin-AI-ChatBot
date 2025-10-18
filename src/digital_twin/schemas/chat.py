@@ -12,9 +12,7 @@ from digital_twin.schemas import ChatMessage
 
 class ChatBase(BaseModel):
     """Base Chat schema."""
-
-    created_at: datetime = Field(default=datetime.now())
-    is_active: bool = Field(default=True, description="Indicates if the chat is active")
+    pass
 
 
 class ChatCreate(ChatBase):
@@ -35,6 +33,8 @@ class Chat(ChatBase):
 
     id: Annotated[int, Field(description="Unique Chat ID")]
     messages: list[ChatMessage] = Field(description="Chat's message history")
+    created_at: datetime = Field(description="Indicates when the chat was created")
+    is_active: bool = Field(description="Indicates if the chat is active")
 
     model_config: ClassVar[ConfigDict] = ConfigDict(
         from_attributes=True,
@@ -42,6 +42,7 @@ class Chat(ChatBase):
             "example" : {
                 "id": 1,
                 "is_active": True,
+                "created_at": "2025-01-01T18:30:00",
                 "messages": [],
             }
         },

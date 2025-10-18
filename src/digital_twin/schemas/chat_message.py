@@ -38,7 +38,6 @@ class ChatMessageBase(BaseModel):
     content: Annotated[
         str, AfterValidator(validate_non_empty("Chat message content cannot be empty."))
     ] = Field(..., min_length=1, description="Content of the chat message")
-    created_at: datetime = Field(default=datetime.now())
 
     model_config: ClassVar[ConfigDict] = ConfigDict(validate_assignment=True)
 
@@ -59,6 +58,7 @@ class ChatMessage(ChatMessageBase):
     """Model for ChatMessage responses."""
 
     id: int = Field(..., description="Unique chat message ID")
+    created_at: datetime = Field(description="Indicates when the chat message was created")
 
     model_config: ClassVar[ConfigDict] = ConfigDict(
         from_attributes=True,
