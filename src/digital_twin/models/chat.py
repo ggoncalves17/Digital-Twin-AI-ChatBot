@@ -32,4 +32,4 @@ class Chat(Base):
     messages: Mapped[List["ChatMessage"]] = relationship(back_populates="chat")
 
     def __repr__(self):
-        return f"<Chat(id={self.id}, name='{self.name}', birthdate='{self.birthdate}, email={self.email}')>"
+        return f"<Chat(id={self.id}, name='{self.name}', is_active='{self.is_active}, created_at={self.created_at}')>"
