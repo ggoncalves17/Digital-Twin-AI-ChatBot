@@ -42,6 +42,7 @@ router.include_router(questions_answers.router)
 router.include_router(users.router)
 app.include_router(router)
 
+
 @app.get("/db")
 def db_version():
     with engine.connect() as connection:
@@ -68,5 +69,6 @@ def health_check() -> dict[str, Any]:
 
 
 def main():
-    print(f"Hello from {settings.PROJECT_NAME}!")
-    print(f"{settings.DATABASE_URL}")
+    import uvicorn
+
+    uvicorn.run("digital_twin:app", host="0.0.0.0", port=8000)
