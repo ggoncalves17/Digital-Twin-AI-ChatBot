@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from digital_twin.models import Base
 
 if TYPE_CHECKING:
-    from digital_twin.models import Education, Hobby, Occupation
+    from digital_twin.models import Education, Hobby, Occupation, Chat
 
 
 class Persona(Base):
@@ -28,6 +28,7 @@ class Persona(Base):
     educations: Mapped[List["Education"]] = relationship(back_populates="persona")
     occupations: Mapped[List["Occupation"]] = relationship(back_populates="persona")
     hobbies: Mapped[List["Hobby"]] = relationship(back_populates="persona")
+    chats: Mapped[List["Chat"]] = relationship(back_populates="persona")
 
     def __repr__(self):
         return f"<Persona(id={self.id}, name='{self.name}', birthdate='{self.birthdate}, nationality={self.nationality}')>"
