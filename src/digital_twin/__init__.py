@@ -9,7 +9,7 @@ from sqlalchemy import text
 
 from digital_twin.config import settings
 from digital_twin.database import engine
-from digital_twin.routers import educations, hobbies, occupations, personas, autonomous_agent, questions_answers
+from digital_twin.routers import educations, hobbies, occupations, personas, questions_answers
 
 
 @asynccontextmanager
@@ -38,7 +38,6 @@ router.include_router(educations.router)
 router.include_router(hobbies.router)
 router.include_router(occupations.router)
 router.include_router(personas.router)
-router.include_router(autonomous_agent.router)
 router.include_router(questions_answers.router)
 app.include_router(router)
 
