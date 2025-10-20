@@ -20,22 +20,20 @@ jobs:
 
       # 2️⃣ — Set up Python
       - name: Set up Python
-        working-directory: ./backend
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'   # or whichever version you're using locally
 
       # 3️⃣ — Install uv (fast dependency manager)
       - name: Install uv
-        working-directory: ./backend
         run: pip install uv
 
       # 4️⃣ — Sync dependencies from pyproject.toml
       - name: Install dependencies
-        working-directory: ./backend
         run: uv sync --python 3.11
+        working-directory: ./backend
 
       # 5️⃣ — Run tests with pytest
       - name: Run tests
-        working-directory: ./backend
         run: uv run pytest -v
+        working-directory: ./backend
