@@ -12,10 +12,6 @@ from digital_twin.utils.security import create_access_token, get_current_user
 router = APIRouter(prefix="/users", tags=["user"])
 
 
-@router.get("/", response_model=list[User])
-def get_all_users(db: Annotated[Session, Depends(get_db)]):
-    return UserService.get_users(db)
-
 @router.post("/register", status_code=status.HTTP_204_NO_CONTENT)
 def add_user(new_user: UserCreate, db: Annotated[Session, Depends(get_db)]):
     success = UserService.add_user(db, new_user)

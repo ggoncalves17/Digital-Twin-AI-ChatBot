@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = ""
     ALGORITHM: str = ""
     GOOGLE_API_KEY: str = ""
+    JWT_EXPIRE_MINUTES: int = 30
 
 
 settings = Settings()
