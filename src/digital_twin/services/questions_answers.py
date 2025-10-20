@@ -1,13 +1,22 @@
 import os
 from dotenv import load_dotenv
-from langchain.prompts import ChatPromptTemplate
+from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.schema import StrOutputParser
 from sqlalchemy.orm import Session
 from digital_twin.schemas.question_answer import QACreate
 from digital_twin.services.persona import PersonaService
+from digital_twin.utils.toolkit import search_tool, weather_tool, travel_recommendation
+from langchain.agents import create_react_agent, AgentExecutor
 
 load_dotenv()
+
+agent_tools = [
+    search_tool,
+    weather_tool,
+    travel_recommendation
+
+    ]
 
 api_key = os.getenv("GOOGLE_KEY")
 
@@ -18,17 +27,31 @@ def get_model():
     )
     return model
 
-template = ChatPromptTemplate.from_messages([
-    ("system", """You are a person named {name}, you are {nationality}, born in {birthdate}, of the {gender} gender.
-    You have these hobbies: {hobbies}. This {occupations}. And this {educations}."""),
+template = PromptTemplate.from_template("""
+You are a person named {name}, you are {nationality}, born in {birthdate}, of the {gender} gender.
+You have these hobbies: {hobbies}. This {occupations}. And this {educations}.
 
-    ("human", """{input}
+You have access to the following tools:
+{tools}
 
-    Requirements:
-    - Be happy and smooth
-    - Don't be too long in your answer
-    """)
-])
+When deciding what to do, the available tool names you can use in actions are:
+[{tool_names}]
+
+Use the following format:
+
+Question: {input}
+Thought: your reasoning
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (repeat if needed)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Begin!
+Question: {input}
+Thought: {agent_scratchpad}
+""")
 
 def format_education(educations):
     if educations:
@@ -62,6 +85,25 @@ def format_hobbies(hobbies):
         return formatted_hobbies
     else:
         return "no listed hobbies"
+    
+
+def get_agent_executor():
+    llm = get_model()  # your ChatGoogleGenerativeAI instance
+
+    agent = create_react_agent(
+        llm=llm,
+        tools=agent_tools,
+        prompt=template
+    )
+
+    return AgentExecutor(
+        agent=agent,
+        tools=agent_tools,
+        verbose=True,
+        handle_parsing_errors=True,
+        max_iterations=10,
+        early_stopping_method="generate"
+    )
 
 class QAService:
 
@@ -85,13 +127,12 @@ class QAService:
             "hobbies": format_hobbies(persona.hobbies),
             "occupations": format_occupations(persona.occupations),
             "educations": format_education(persona.educations),
-            "input": question.question
+            "input": question.question,
         }
         
-        model = get_model()
+        executor = get_agent_executor()
 
-        content_chain = template | model | StrOutputParser()
+        result = executor.invoke(persona_data)
 
-        result = content_chain.invoke(persona_data)
 
         return result
