@@ -35,4 +35,5 @@ USER guest
 WORKDIR /app
 
 # Run the FastAPIdev by default
-CMD ["uvicorn", "--reload", "--host", "0.0.0.0", "--port", "8000", "digital_twin:app"]
+# CMD ["uvicorn", "--reload", "--host", "0.0.0.0", "--port", "8000", "digital_twin:app"]
+CMD ["digital-twin"]

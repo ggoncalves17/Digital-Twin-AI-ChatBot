@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.logger import logger
 from sqlalchemy.orm import Session
 
 from digital_twin.schemas.chat_message import ChatMessage
