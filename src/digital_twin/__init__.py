@@ -9,7 +9,13 @@ from sqlalchemy import text
 
 from digital_twin.config import settings
 from digital_twin.database import engine
-from digital_twin.routers import educations, hobbies, occupations, personas, questions_answers
+from digital_twin.routers import (
+    educations,
+    hobbies,
+    occupations,
+    personas,
+    questions_answers,
+)
 
 
 @asynccontextmanager
@@ -41,6 +47,7 @@ router.include_router(personas.router)
 router.include_router(questions_answers.router)
 app.include_router(router)
 
+
 @app.get("/db")
 def db_version():
     with engine.connect() as connection:
@@ -67,5 +74,6 @@ def health_check() -> dict[str, Any]:
 
 
 def main():
-    print(f"Hello from {settings.PROJECT_NAME}!")
-    print(f"{settings.DATABASE_URL}")
+    import uvicorn
+
+    uvicorn.run("digital_twin:app", host="0.0.0.0", port=8000)

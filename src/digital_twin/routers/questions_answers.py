@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from digital_twin.services.questions_answers import QAService
 from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+
 from digital_twin.database import get_db
 from digital_twin.schemas.question_answer import QACreate
+from digital_twin.services.questions_answers import QAService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
+
 
 @router.post("/")
 def questions_answers(
