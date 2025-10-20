@@ -18,5 +18,8 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = "sqlite:///:memory:"
 
+    SECRET_KEY: str
+    ALGORITHM: str
+
 
 settings = Settings()

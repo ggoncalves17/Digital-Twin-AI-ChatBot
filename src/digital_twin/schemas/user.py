@@ -49,6 +49,15 @@ class UserUpdate(BaseModel):
 
     name: str | None = Field(None, min_length=1, max_length=100, description="User's name")
 
+
+class UserLogin(BaseModel):
+    """User login schema."""
+
+    email: EmailStr
+    password: Annotated[str, AfterValidator(validate_password)] = Field(
+        min_length=8, description="User's Password"
+    )
+
 class User(UserBase):
     """User response schema."""
 
@@ -67,3 +76,12 @@ class User(UserBase):
             }
         },
     )
+
+class Token(BaseModel):
+    """JWT token response."""
+    access_token: str
+    token_type: str = "bearer"
+
+class TokenData(BaseModel):
+    """Token data for validation."""
+    email: str | None
