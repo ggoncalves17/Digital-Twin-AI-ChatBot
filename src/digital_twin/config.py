@@ -18,5 +18,7 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = "sqlite:///:memory:"
 
+    GOOGLE_API_KEY: str = ""
+
 
 settings = Settings()
