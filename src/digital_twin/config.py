@@ -18,7 +18,10 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = "sqlite:///:memory:"
 
+    SECRET_KEY: str = ""
+    ALGORITHM: str = ""
     GOOGLE_API_KEY: str = ""
+    JWT_EXPIRE_MINUTES: int = 30
 
 
 settings = Settings()
