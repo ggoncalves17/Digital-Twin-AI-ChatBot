@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from ..utils.autonomous_agent import get_agent_executor
+from digital_twin.utils.autonomous_agent import get_agent_executor
 
 router = APIRouter(prefix="/agent", tags=["agent"])
 
