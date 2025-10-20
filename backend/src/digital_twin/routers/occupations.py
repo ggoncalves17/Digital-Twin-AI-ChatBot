@@ -18,13 +18,13 @@ router = APIRouter(prefix="/occupations", tags=["occupation"])
 def create_occupation(
     occupation: OccupationCreate, db: Annotated[Session, Depends(get_db)]
 ):
-    occupation = OccupationService.create_occupation(db, occupation)
+    new_occupation = OccupationService.create_occupation(db, occupation)
     
-    if occupation is None:
+    if new_occupation is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Persona id not found"
         )
-    return occupation
+    return new_occupation
 
 
 @router.get("/", response_model=list[Occupation])
