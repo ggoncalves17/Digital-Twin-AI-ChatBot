@@ -13,10 +13,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: backend 
-
     steps:
       # 1️⃣ — Checkout the code
       - name: Checkout repository
@@ -34,8 +30,10 @@ jobs:
 
       # 4️⃣ — Sync dependencies from pyproject.toml
       - name: Install dependencies
+        working-directory: ./backend
         run: uv sync
 
       # 5️⃣ — Run tests with pytest
       - name: Run tests
+        working-directory: ./backend
         run: uv run pytest -v
