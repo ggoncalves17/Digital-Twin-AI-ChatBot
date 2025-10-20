@@ -7,7 +7,7 @@
 - [Trello](https://trello.com/invite/b/68df8720f3a0b9358e3185e0/ATTIf4dc42546f45cbc8140669f8207642abE25BF06A/digital-twin) for project kanban
 
 ## How to run
-You need to have Docker Desktop up and runningon your machine and a .env file, there is an exmample on branch, then you need to type on your terminal 
+You need to have Docker Desktop up and runningon your machine and a .env file that contains both a google_api key and a weather api key, there is an exmample on branch, then you need to type on your terminal 
 ```bash
 docker compose up --watch
 ```
@@ -25,3 +25,5 @@ docker compose down
 uv run pytest
 ```
 It will also be run whenever the main branch is updated. The result will appear in GitHub Actions.
+
+
