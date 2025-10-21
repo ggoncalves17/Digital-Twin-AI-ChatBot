@@ -6,6 +6,7 @@ import alembic.command
 from alembic.config import Config
 from fastapi import APIRouter, FastAPI
 from sqlalchemy import text
+from fastapi.middleware.cors import CORSMiddleware
 
 from digital_twin.config import settings
 from digital_twin.database import engine
@@ -32,6 +33,19 @@ def create_app() -> FastAPI:
 # Instantiate FastAPI
 app = create_app()
 
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # TODO include routers
 router = APIRouter(prefix=settings.API_V1_STR)
 router.include_router(educations.router)
@@ -41,7 +55,6 @@ router.include_router(personas.router)
 router.include_router(questions_answers.router)
 router.include_router(users.router)
 app.include_router(router)
-
 
 @app.get("/db")
 def db_version():
