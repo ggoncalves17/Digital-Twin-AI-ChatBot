@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.logger import logger
 from sqlalchemy.orm import Session
 
+from digital_twin.schemas.chat_message import ChatMessage
+from digital_twin.schemas.chat import Chat
 from digital_twin.database import get_db
 from digital_twin.schemas.user import Token, User, UserCreate, UserLogin
 from digital_twin.services.user import UserService
@@ -36,3 +38,13 @@ def authenticate_user(user: UserLogin, db: Annotated[Session, Depends(get_db)]):
 @router.get("/profile")
 def get_profile(current_user: User = Depends(get_current_user)) -> User:
     return current_user
+
+@router.get("/{id}/chats/{persona_id}")
+def get_chats(id: int, persona_id: int, db: Annotated[Session, Depends(get_db)], current_user: User = Depends(get_current_user)) -> list[ChatMessage] | None:
+
+    chat = UserService.get_user_persona_chats(id, persona_id, db)
+
+    if chat is None:
+        return None
+    
+    return UserService.get_user_persona_chat_history(chat.id, db)
