@@ -27,48 +27,84 @@ const Chat = () => {
   const [input, setInput] = useState("");
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [selectedPersona, setSelectedPersona] = useState<string>("");
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const navigate = useNavigate();
 
-  // Protected Route for only autheticated users
+  // Get authenticated user profile
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    if (token == null) {
+    if (!token) {
       navigate("/");
-      return
+      return;
     }
 
-    axios.get('http://localhost:8000/api/v1/users/profile',
-      { headers: { Authorization: `Bearer ${token}` } }
-    )
-      .then(function (response) {
+    axios.get("http://localhost:8000/api/v1/users/profile", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((response) => {
+        setUserId(response.data.id); // Set user ID for future requests
       })
-      .catch(function (error) {
-        console.log(error);
-        if (error.status == 401) {
+      .catch((error) => {
+        console.error("Erro ao carregar perfil:", error);
+        if (error.response?.status === 401) {
           navigate("/");
         }
       });
   }, []);
 
-  // Get all personas available
+  // Get all personas
   useEffect(() => {
-    axios.get('http://localhost:8000/api/v1/personas/',
-    )
-      .then(function (response) {
-        const data = response.data
-
+    axios.get("http://localhost:8000/api/v1/personas/")
+      .then((response) => {
+        const data = response.data;
         const personas: Persona[] = data.map((item: any) => ({
           id: item.id,
           name: item.name,
         }));
-
-        setPersonas(personas)
+        setPersonas(personas);
       })
-      .catch(function (error) {
-        console.log(error);
+      .catch((error) => {
+        console.error("Erro ao carregar personas:", error);
       });
-  }, [])
+  }, []);
+
+  // Fetch chat history when a persona is selected
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!selectedPersona || !userId || !token) {
+      setMessages([]);
+      return;
+    }
+
+    setLoadingHistory(true);
+
+    axios.get(
+      `http://localhost:8000/api/v1/users/${userId}/chats/${selectedPersona}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+      .then((response) => {
+        const data = response.data;
+
+        const loadedMessages: Message[] = data.map((msg: any) => ({
+          id: msg.id.toString(),
+          role: msg.role.toLowerCase() === "user" ? "user" : "assistant",
+          content: msg.content,
+          timestamp: new Date(msg.created_at),
+        }));
+
+        setMessages(loadedMessages);
+      })
+      .catch((error) => {
+        console.error("Erro ao carregar histórico:", error);
+        setMessages([]);
+      })
+      .finally(() => {
+        setLoadingHistory(false);
+      });
+  }, [selectedPersona, userId]);
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -111,6 +147,7 @@ const Chat = () => {
       </div>
 
       <div className="container mx-auto flex h-full max-w-6xl gap-4 p-4">
+        {/* Sidebar */}
         <Card className="w-72 p-4">
           <div className="mb-4">
             <h2 className="mb-2 text-lg font-semibold">Personas</h2>
@@ -132,6 +169,7 @@ const Chat = () => {
           </div>
         </Card>
 
+        {/* Chat panel */}
         <Card className="flex flex-1 flex-col">
           <div className="border-b border-border p-4">
             <div className="flex items-center gap-3">
@@ -146,6 +184,7 @@ const Chat = () => {
             </div>
           </div>
 
+          {/* Chat messages */}
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
               {!selectedPersona ? (
@@ -153,6 +192,13 @@ const Chat = () => {
                   <div>
                     <Bot className="mx-auto mb-2 h-12 w-12 opacity-50" />
                     <p>Please select a persona to start the conversation.</p>
+                  </div>
+                </div>
+              ) : loadingHistory ? (
+                <div className="flex h-full items-center justify-center text-center text-muted-foreground">
+                  <div>
+                    <Bot className="mx-auto mb-2 h-12 w-12 animate-spin opacity-50" />
+                    <p>Loading chat...</p>
                   </div>
                 </div>
               ) : messages.length === 0 ? (
@@ -195,7 +241,7 @@ const Chat = () => {
             </div>
           </ScrollArea>
 
-
+          {/* Input */}
           <div className="border-t border-border p-4">
             <form
               onSubmit={(e) => {
@@ -218,7 +264,6 @@ const Chat = () => {
               </Button>
             </form>
           </div>
-
         </Card>
       </div>
     </div>
