@@ -11,6 +11,7 @@ from digital_twin.config import settings
 from digital_twin.database import engine
 from digital_twin.routers import educations, hobbies, occupations, personas, questions_answers, users
 
+from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -42,6 +43,18 @@ router.include_router(questions_answers.router)
 router.include_router(users.router)
 app.include_router(router)
 
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/db")
 def db_version():
