@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Send, User, Bot } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 type Message = {
   id: string;
@@ -33,6 +35,28 @@ const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [selectedPersona, setSelectedPersona] = useState<string>("assistant");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token == null) {
+      navigate("/");
+      return
+    }
+
+    let response = axios.get('http://localhost:8000/api/v1/users/profile',
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+      .then(function (response) {
+      })
+      .catch(function (error) {
+        console.log(error);
+        if (error.status == 401 ) {
+          navigate("/");
+        }
+      });
+  }, []);
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -47,7 +71,6 @@ const Chat = () => {
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
 
-    // Simular resposta do bot
     setTimeout(() => {
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -61,17 +84,24 @@ const Chat = () => {
 
   const currentPersona = personas.find(p => p.id === selectedPersona);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="absolute right-4 top-4">
+      <div className="absolute right-4 top-4 flex gap-2">
         <ThemeToggle />
+        <Button variant="outline" onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
 
       <div className="container mx-auto flex h-full max-w-6xl gap-4 p-4">
-        {/* Sidebar de Personas */}
         <Card className="w-72 p-4">
           <div className="mb-4">
-            <h2 className="mb-2 text-lg font-semibold">Persona Ativa</h2>
+            <h2 className="mb-2 text-lg font-semibold">Personas</h2>
             <Select value={selectedPersona} onValueChange={setSelectedPersona}>
               <SelectTrigger>
                 <SelectValue />
@@ -96,9 +126,7 @@ const Chat = () => {
           </div>
         </Card>
 
-        {/* Área de Chat */}
         <Card className="flex flex-1 flex-col">
-          {/* Header */}
           <div className="border-b border-border p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-2xl">
@@ -106,30 +134,25 @@ const Chat = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold">Digital Twin</h1>
-                <p className="text-sm text-muted-foreground">
-                  Conversando como {currentPersona?.name}
-                </p>
               </div>
             </div>
           </div>
 
-          {/* Mensagens */}
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
               {messages.length === 0 && (
                 <div className="flex h-full items-center justify-center text-center text-muted-foreground">
                   <div>
                     <Bot className="mx-auto mb-2 h-12 w-12 opacity-50" />
-                    <p>Comece uma conversa com o Digital Twin</p>
+                    <p>Start a new conversation</p>
                   </div>
                 </div>
               )}
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex gap-3 ${
-                    message.role === "user" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"
+                    }`}
                 >
                   {message.role === "assistant" && (
                     <Avatar className="h-8 w-8">
@@ -139,11 +162,10 @@ const Chat = () => {
                     </Avatar>
                   )}
                   <div
-                    className={`max-w-[70%] rounded-lg px-4 py-2 ${
-                      message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary"
-                    }`}
+                    className={`max-w-[70%] rounded-lg px-4 py-2 ${message.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary"
+                      }`}
                   >
                     <p className="text-sm">{message.content}</p>
                   </div>
@@ -159,7 +181,6 @@ const Chat = () => {
             </div>
           </ScrollArea>
 
-          {/* Input */}
           <div className="border-t border-border p-4">
             <form
               onSubmit={(e) => {
@@ -171,7 +192,7 @@ const Chat = () => {
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Digite sua mensagem..."
+                placeholder="Write your message..."
                 className="flex-1"
               />
               <Button type="submit" size="icon">
