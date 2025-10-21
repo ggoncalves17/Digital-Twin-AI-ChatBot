@@ -13,7 +13,6 @@ frontend/build/
 
 # Environment files
 .env
-.env.*
 
 # Ignore local test coverage
 **/__pycache__/
