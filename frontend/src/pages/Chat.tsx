@@ -20,23 +20,16 @@ type Message = {
 type Persona = {
   id: string;
   name: string;
-  description: string;
-  icon: string;
 };
-
-const personas: Persona[] = [
-  { id: "assistant", name: "Assistente", description: "Ajudante geral", icon: "🤖" },
-  { id: "teacher", name: "Professor", description: "Educador paciente", icon: "👨‍🏫" },
-  { id: "coach", name: "Coach", description: "Motivador de vida", icon: "💪" },
-  { id: "analyst", name: "Analista", description: "Pensador crítico", icon: "📊" },
-];
 
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [selectedPersona, setSelectedPersona] = useState<string>("assistant");
+  const [personas, setPersonas] = useState<Persona[]>([]);
+  const [selectedPersona, setSelectedPersona] = useState<string>("");
   const navigate = useNavigate();
 
+  // Protected Route for only autheticated users
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -45,18 +38,37 @@ const Chat = () => {
       return
     }
 
-    let response = axios.get('http://localhost:8000/api/v1/users/profile',
+    axios.get('http://localhost:8000/api/v1/users/profile',
       { headers: { Authorization: `Bearer ${token}` } }
     )
       .then(function (response) {
       })
       .catch(function (error) {
         console.log(error);
-        if (error.status == 401 ) {
+        if (error.status == 401) {
           navigate("/");
         }
       });
   }, []);
+
+  // Get all personas available
+  useEffect(() => {
+    axios.get('http://localhost:8000/api/v1/personas/',
+    )
+      .then(function (response) {
+        const data = response.data
+
+        const personas: Persona[] = data.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+        }));
+
+        setPersonas(personas)
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }, [])
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -104,13 +116,13 @@ const Chat = () => {
             <h2 className="mb-2 text-lg font-semibold">Personas</h2>
             <Select value={selectedPersona} onValueChange={setSelectedPersona}>
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select a user" />
               </SelectTrigger>
               <SelectContent>
                 {personas.map((persona) => (
                   <SelectItem key={persona.id} value={persona.id}>
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">{persona.icon}</span>
+                      <span className="text-xl">👤</span>
                       <span>{persona.name}</span>
                     </div>
                   </SelectItem>
@@ -118,88 +130,95 @@ const Chat = () => {
               </SelectContent>
             </Select>
           </div>
-
-          <div className="rounded-lg bg-secondary/50 p-4">
-            <div className="mb-2 text-4xl">{currentPersona?.icon}</div>
-            <h3 className="mb-1 font-semibold">{currentPersona?.name}</h3>
-            <p className="text-sm text-muted-foreground">{currentPersona?.description}</p>
-          </div>
         </Card>
 
         <Card className="flex flex-1 flex-col">
           <div className="border-b border-border p-4">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-2xl">
-                {currentPersona?.icon}
+                👤
               </div>
               <div>
-                <h1 className="text-xl font-bold">Digital Twin</h1>
+                <h1 className="text-xl font-bold">
+                  {currentPersona?.name || "No Persona selected"}
+                </h1>
               </div>
             </div>
           </div>
 
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
-              {messages.length === 0 && (
+              {!selectedPersona ? (
+                <div className="flex h-full items-center justify-center text-center text-muted-foreground">
+                  <div>
+                    <Bot className="mx-auto mb-2 h-12 w-12 opacity-50" />
+                    <p>Please select a persona to start the conversation.</p>
+                  </div>
+                </div>
+              ) : messages.length === 0 ? (
                 <div className="flex h-full items-center justify-center text-center text-muted-foreground">
                   <div>
                     <Bot className="mx-auto mb-2 h-12 w-12 opacity-50" />
                     <p>Start a new conversation</p>
                   </div>
                 </div>
-              )}
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
-                >
-                  {message.role === "assistant" && (
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-primary/10">
-                        {currentPersona?.icon}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
+              ) : (
+                messages.map((message) => (
                   <div
-                    className={`max-w-[70%] rounded-lg px-4 py-2 ${message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary"
+                    key={message.id}
+                    className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"
                       }`}
                   >
-                    <p className="text-sm">{message.content}</p>
+                    {message.role === "assistant" && (
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary/10">👤</AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div
+                      className={`max-w-[70%] rounded-lg px-4 py-2 ${message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary"
+                        }`}
+                    >
+                      <p className="text-sm">{message.content}</p>
+                    </div>
+                    {message.role === "user" && (
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-primary/10">
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
                   </div>
-                  {message.role === "user" && (
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-primary/10">
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </ScrollArea>
+
 
           <div className="border-t border-border p-4">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                handleSend();
+                if (selectedPersona) handleSend();
               }}
               className="flex gap-2"
             >
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Write your message..."
+                placeholder={
+                  selectedPersona ? "Write your message..." : "Select a persona first"
+                }
                 className="flex-1"
+                disabled={!selectedPersona}
               />
-              <Button type="submit" size="icon">
+              <Button type="submit" size="icon" disabled={!selectedPersona}>
                 <Send className="h-4 w-4" />
               </Button>
             </form>
           </div>
+
         </Card>
       </div>
     </div>
