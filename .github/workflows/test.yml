@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'   # or whichever version you're using locally
+          python-version: '3.13'   # or whichever version you're using locally
 
       # 3️⃣ — Install uv (fast dependency manager)
       - name: Install uv
@@ -30,8 +30,10 @@ jobs:
 
       # 4️⃣ — Sync dependencies from pyproject.toml
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --python 3.13
+        working-directory: ./backend
 
       # 5️⃣ — Run tests with pytest
       - name: Run tests
         run: uv run pytest -v
+        working-directory: ./backend
