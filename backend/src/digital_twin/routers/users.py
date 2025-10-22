@@ -3,7 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from digital_twin.schemas.chat_message import ChatMessage
+from digital_twin.services.questions_answers import QAService
+from digital_twin.schemas.chat_message import ChatMessage, ChatMessageCreate
 from digital_twin.schemas.chat import Chat
 from digital_twin.database import get_db
 from digital_twin.schemas.user import Token, User, UserCreate, UserLogin
@@ -47,3 +48,41 @@ def get_chats(id: int, persona_id: int, db: Annotated[Session, Depends(get_db)],
         return None
     
     return UserService.get_user_persona_chat_history(chat.id, db)
+
+@router.post("/{id}/chats/{persona_id}")
+def add_chat_message(id: int, persona_id: int, message: ChatMessageCreate, db: Annotated[Session, Depends(get_db)], current_user: User = Depends(get_current_user)):
+
+    chat = UserService.get_user_persona_chats(id, persona_id, db)
+
+    if chat is None:
+        chat = UserService.create_chat_persona(id, persona_id, db)
+        if not chat:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create a new chat with the specified persona."
+            )
+        
+    new_message = UserService.add_chat_persona_message(chat.id, message, db)
+    if not new_message:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to add the user's message to the chat."
+        )
+
+    result = QAService.generate_chat_response(new_message.content, persona_id, db)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to generate a response from the persona."
+        )
+    
+    assistant_message = ChatMessageCreate(role="Assistant", content=result['output'])
+    new_response = UserService.add_chat_persona_message(chat.id, assistant_message, db)
+
+    if not new_response:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to store the assistant's response in the chat."
+        )
+
+    return new_response

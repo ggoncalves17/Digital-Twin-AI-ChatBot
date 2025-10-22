@@ -132,3 +132,30 @@ class QAService:
         result = executor.invoke(persona_data)
 
         return result
+    
+    @staticmethod
+    def generate_chat_response(question: str, persona_id: int, db: Session) -> dict[str, Any] | None:
+
+        persona = PersonaService.get_persona(db, persona_id)
+
+        if not persona:
+            return None
+
+        persona_data = {
+            "name": persona.name,
+            "nationality": persona.nationality or "Not specified",
+            "birthdate": persona.birthdate.strftime("%Y-%m-%d")
+            if persona.birthdate
+            else "Unknown",
+            "gender": persona.gender or "Not specified",
+            "hobbies": format_hobbies(persona.hobbies),
+            "occupations": format_occupations(persona.occupations),
+            "educations": format_education(persona.educations),
+            "input": question,
+        }
+
+        executor = get_agent_executor()
+
+        result = executor.invoke(persona_data)
+
+        return result
