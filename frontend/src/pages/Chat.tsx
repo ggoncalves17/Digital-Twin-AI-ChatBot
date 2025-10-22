@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -31,6 +31,12 @@ const Chat = () => {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const navigate = useNavigate();
+
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   // Get authenticated user profile
   useEffect(() => {
@@ -303,6 +309,8 @@ const Chat = () => {
                       </div>
                     </div>
                   )}
+
+                  <div ref={bottomRef} />
                 </>
               )}
             </div>
