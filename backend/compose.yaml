@@ -5,6 +5,8 @@ services:
       - db
     ports:
         - "8000:8000"
+    volumes:
+      - ./alembic:/app/alembic  # To save revisions made with docker compose exec
     develop:
       # Create a `watch` configuration to update the app
       # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts

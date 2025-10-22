@@ -1,3 +1,4 @@
+from typing import Any
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -86,7 +87,7 @@ def format_hobbies(hobbies):
         return "no listed hobbies"
 
 
-def get_agent_executor():
+def get_agent_executor() -> AgentExecutor:
     llm = get_model()  # your ChatGoogleGenerativeAI instance
 
     agent = create_react_agent(llm=llm, tools=agent_tools, prompt=template)
@@ -105,7 +106,7 @@ class QAService:
     """Question abstraction layer between ORM and API endpoints."""
 
     @staticmethod
-    def generate_response(db: Session, question: QACreate) -> QACreate | None:
+    def generate_response(db: Session, question: QACreate) -> dict[str, Any] | None:
         persona_id = question.persona_id
 
         persona = PersonaService.get_persona(db, persona_id)

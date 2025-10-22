@@ -9,7 +9,14 @@ from sqlalchemy import text
 
 from digital_twin.config import settings
 from digital_twin.database import engine
-from digital_twin.routers import educations, hobbies, occupations, personas, questions_answers, users
+from digital_twin.routers import (
+    educations,
+    hobbies,
+    occupations,
+    personas,
+    questions_answers,
+    users,
+)
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -84,4 +91,4 @@ def health_check() -> dict[str, Any]:
 def main():
     import uvicorn
 
-    uvicorn.run("digital_twin:app", host="0.0.0.0", port=8000)
+    uvicorn.run("digital_twin:app", host="0.0.0.0", port=8000, reload=True)
