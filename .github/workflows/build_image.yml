@@ -3,6 +3,8 @@ name: Build and push backend Docker image
 on:
   push:
     branches: [main]
+    paths:
+      - "backend"
 
 jobs:
   build-and-push-image:
