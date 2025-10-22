@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - main
-      - 27-create-unit-testing-for-the-schemas
+    paths:
+      - "backend"
   pull_request:
     branches:
       - main
