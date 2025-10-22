@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str = ""
     JWT_EXPIRE_MINUTES: int = 30
 
+    OPENWEATHER_API_KEY: str = ""
+
 
 settings = Settings()
 

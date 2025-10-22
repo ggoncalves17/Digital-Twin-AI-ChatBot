@@ -1,19 +1,16 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
-from digital_twin.models.chat_message import ChatMessage
-from digital_twin.models.chat import Chat
 from digital_twin.models.user import User
 from digital_twin.schemas.user import UserCreate, UserLogin
-
 from digital_twin.utils.security import hash_password, verify_password
+
 
 class UserService:
     """User abstraction layer between ORM and API endpoints."""
 
     @staticmethod
     def add_user(db: Session, user: UserCreate) -> User | None:
-
         user.password = hash_password(user.password)
 
         new_user = User(**user.model_dump())
@@ -28,14 +25,14 @@ class UserService:
             db.commit()
             db.refresh(new_user)
             return new_user
-    
+
     @staticmethod
     def authenticate_user(db: Session, user: UserLogin) -> User | bool:
         new_user = UserService.get_user_email(db, user.email)
 
         if not new_user or not verify_password(user.password, new_user.password):
             return False
-        
+
         return new_user
 
     @staticmethod
@@ -48,7 +45,7 @@ class UserService:
             .filter(User.email == email)
             .first()
         )
-    
+
     @staticmethod
     def get_user(db: Session, id: int) -> User | None:
         return (
@@ -63,12 +60,3 @@ class UserService:
     @staticmethod
     def get_users(db: Session) -> list[User]:
         return db.query(User).order_by(User.id).all()
-    
-    @staticmethod
-    def get_user_persona_chats(id: int , persona_id: int, db: Session) -> Chat | None:
-        return db.query(Chat).filter(Chat.user_id == id, Chat.persona_id == persona_id, Chat.is_active == True).first()
-
-    @staticmethod
-    def get_user_persona_chat_history(chat_id: int, db: Session) -> list[ChatMessage]:
-        return db.query(ChatMessage).filter(ChatMessage.chat_id == chat_id).all()
-    

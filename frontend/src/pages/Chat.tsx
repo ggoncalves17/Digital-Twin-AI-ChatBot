@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -29,7 +29,14 @@ const Chat = () => {
   const [selectedPersona, setSelectedPersona] = useState<string>("");
   const [userId, setUserId] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [isBotTyping, setIsBotTyping] = useState(false);
   const navigate = useNavigate();
+
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   // Get authenticated user profile
   useEffect(() => {
@@ -40,14 +47,15 @@ const Chat = () => {
       return;
     }
 
-    axios.get("http://localhost:8000/api/v1/users/profile", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    axios
+      .get("http://localhost:8000/api/v1/users/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((response) => {
-        setUserId(response.data.id); // Set user ID for future requests
+        setUserId(response.data.id);
       })
       .catch((error) => {
-        console.error("Erro ao carregar perfil:", error);
+        console.error("Failed to load profile:", error);
         if (error.response?.status === 401) {
           navigate("/");
         }
@@ -56,17 +64,17 @@ const Chat = () => {
 
   // Get all personas
   useEffect(() => {
-    axios.get("http://localhost:8000/api/v1/personas/")
+    axios
+      .get("http://localhost:8000/api/v1/personas/")
       .then((response) => {
-        const data = response.data;
-        const personas: Persona[] = data.map((item: any) => ({
+        const personas: Persona[] = response.data.map((item: any) => ({
           id: item.id,
           name: item.name,
         }));
         setPersonas(personas);
       })
       .catch((error) => {
-        console.error("Erro ao carregar personas:", error);
+        console.error("Failed to load personas:", error);
       });
   }, []);
 
@@ -81,24 +89,24 @@ const Chat = () => {
 
     setLoadingHistory(true);
 
-    axios.get(
-      `http://localhost:8000/api/v1/users/${userId}/chats/${selectedPersona}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    )
+    axios
+      .get(
+        `http://localhost:8000/api/v1/users/${userId}/chats/${selectedPersona}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
       .then((response) => {
-        const data = response.data;
-
-        const loadedMessages: Message[] = data.map((msg: any) => ({
+        const loadedMessages: Message[] = response.data.map((msg: any) => ({
           id: msg.id.toString(),
           role: msg.role.toLowerCase() === "user" ? "user" : "assistant",
           content: msg.content,
           timestamp: new Date(msg.created_at),
         }));
-
         setMessages(loadedMessages);
       })
       .catch((error) => {
-        console.error("Erro ao carregar histórico:", error);
+        console.error("Failed to load chat history:", error);
         setMessages([]);
       })
       .finally(() => {
@@ -106,8 +114,8 @@ const Chat = () => {
       });
   }, [selectedPersona, userId]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async () => {
+    if (!input.trim() || !userId || !selectedPersona) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -117,20 +125,50 @@ const Chat = () => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const messageContent = input;
     setInput("");
+    setIsBotTyping(true);
 
-    setTimeout(() => {
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.post(
+        `http://localhost:8000/api/v1/users/${userId}/chats/${selectedPersona}`,
+        { role: "User", content: messageContent },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = response.data;
+
+      const assistantMessage: Message = {
+        id: data.id.toString(),
+        role: data.role.toLowerCase() === "assistant" ? "assistant" : "user",
+        content: data.content,
+        timestamp: new Date(data.created_at),
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+
+      const errorMessage: Message = {
+        id: Date.now().toString() + "-error",
         role: "assistant",
-        content: `Como ${personas.find(p => p.id === selectedPersona)?.name}, estou aqui para ajudar!`,
+        content: "⚠️ Failed to get a response from the assistant.",
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, botMessage]);
-    }, 1000);
+
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsBotTyping(false);
+    }
   };
 
-  const currentPersona = personas.find(p => p.id === selectedPersona);
+  const currentPersona = personas.find((p) => p.id === selectedPersona);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -209,34 +247,71 @@ const Chat = () => {
                   </div>
                 </div>
               ) : (
-                messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"
-                      }`}
-                  >
-                    {message.role === "assistant" && (
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary/10">👤</AvatarFallback>
-                      </Avatar>
-                    )}
+                <>
+                  {messages.map((message) => (
                     <div
-                      className={`max-w-[70%] rounded-lg px-4 py-2 ${message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary"
+                      key={message.id}
+                      className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"
                         }`}
                     >
-                      <p className="text-sm">{message.content}</p>
+                      {message.role === "assistant" && (
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-primary/10">🤖</AvatarFallback>
+                        </Avatar>
+                      )}
+                      <div
+                        className={`max-w-[70%] rounded-lg px-4 py-2 ${message.role === "user"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary"
+                          }`}
+                      >
+                        <p className="text-sm">{message.content}</p>
+                      </div>
+                      {message.role === "user" && (
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-primary/10">
+                            <User className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
                     </div>
-                    {message.role === "user" && (
+                  ))}
+
+                  {isBotTyping && (
+                    <div className="flex gap-3 justify-start">
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary/10">
-                          <User className="h-4 w-4" />
-                        </AvatarFallback>
+                        <AvatarFallback className="bg-primary/10">🤖</AvatarFallback>
                       </Avatar>
-                    )}
-                  </div>
-                ))
+                      <div className="max-w-[70%] rounded-lg bg-secondary px-4 py-2">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span>Typing</span>
+                          <svg
+                            className="h-4 w-4 animate-spin text-muted-foreground"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div ref={bottomRef} />
+                </>
               )}
             </div>
           </ScrollArea>

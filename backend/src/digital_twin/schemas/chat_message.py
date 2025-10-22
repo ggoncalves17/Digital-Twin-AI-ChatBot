@@ -44,8 +44,9 @@ class ChatMessageBase(BaseModel):
 
 class ChatMessageCreate(ChatMessageBase):
     """Model for creating a new ChatMessage."""
+    # chat_id: int = Field(gt=0, description="ID of the chat this message belongs to")
 
-    chat_id: int = Field(gt=0, description="ID of the chat this message belongs to")
+    pass
 
 
 class ChatMessageUpdate(BaseModel):
