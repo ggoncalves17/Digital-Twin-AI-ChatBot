@@ -1,18 +1,14 @@
 import requests
-import os
-from dotenv import load_dotenv
 from typing import Optional
 from langchain.tools import Tool, tool
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.tools import DuckDuckGoSearchRun
+from digital_twin.config import settings
 
 # Get API key from https://openweathermap.org/api
 # Free tier: 1000 calls/day
-load_dotenv()
 
-WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
-print(WEATHER_API_KEY)
-print(os.getenv("OPENWEATHER_API_KEY"))
+WEATHER_API_KEY = settings.OPENWEATHER_API_KEY
 WEATHER_API_URL = "http://api.openweathermap.org/data/2.5/weather"
 
 

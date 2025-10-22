@@ -14,7 +14,6 @@ from digital_twin.routers import (
     hobbies,
     occupations,
     personas,
-    questions_answers,
     users,
 )
 
@@ -46,7 +45,6 @@ router.include_router(educations.router)
 router.include_router(hobbies.router)
 router.include_router(occupations.router)
 router.include_router(personas.router)
-router.include_router(questions_answers.router)
 router.include_router(users.router)
 app.include_router(router)
 
