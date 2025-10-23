@@ -7,7 +7,7 @@ import glob
 import os
 import json
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from digital_twin.database import engine
 
@@ -41,7 +41,11 @@ class LakehouseManager:
             'location': location,
             'schema_def': json.dumps(schema_def),
             'partitions': json.dumps(partitions or []),
-            'properties': json.dumps(partitions or [])
+            'properties': json.dumps({
+                "project": "digital_twin_chatbot",
+                "data_source": schema_name,
+                "description": f"Tabela {table_name} para dados do Digital Twin"
+            })
             })
             conn.commit()
     
@@ -106,16 +110,15 @@ class LakehouseManager:
                 'table_id': table_id,
                 'operation': operation
             })
-            # conn.commit() chagpt didnt like it
         
         return transaction_id
-    
+        
     def convert_json_to_partitioned_parquet(self, source_folder, target_folder, table_name, 
-                                            partition_order="timestamp_first"):
+                                        partition_order="timestamp_first"):
         """
         Converts JSON files into partitioned Parquet files.
-        Partitions by timestamp and the first word of the 'event' field.
-        
+        Partitions by date (extracted from timestamp) and the first word of the 'event' field.
+
         partition_order: "timestamp_first" or "event_first"
         """
 
@@ -132,15 +135,22 @@ class LakehouseManager:
         # --- Extract event prefix ---
         df["event_prefix"] = df["event"].apply(lambda x: x.split("_")[0] if isinstance(x, str) else "unknown")
 
-        # --- Validate timestamp column ---
+        # --- Validate and convert timestamp column ---
         if "timestamp" not in df.columns:
             raise ValueError("Missing 'timestamp' field in JSON files — required for partitioning")
 
-        # --- Build partition order ---
+        df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+        if df["timestamp"].isnull().all():
+            raise ValueError("All 'timestamp' values could not be parsed to datetime")
+
+        # --- Create date string column from timestamp for partitioning ---
+        df["date"] = df["timestamp"].dt.date
+
+        # --- Build partition order using 'date' instead of 'timestamp' ---
         if partition_order == "timestamp_first":
-            partition_cols = ["timestamp", "event_prefix"]
+            partition_cols = ["date", "event_prefix"]
         else:
-            partition_cols = ["event_prefix", "timestamp"]
+            partition_cols = ["event_prefix", "date"]
 
         # --- Write Parquet files with partitioning ---
         con = duckdb.connect()
@@ -155,10 +165,11 @@ class LakehouseManager:
         con.execute(sql)
         con.close()
 
-        print(f"✅ Created partitioned Parquet for {table_name} at {parquet_path}")
-        print(f"   Partitioned by {partition_cols}")
+        print(f"Created partitioned Parquet for {table_name} at {parquet_path}")
+        print(f"Partitioned by {partition_cols}")
 
         return parquet_path
+
 
     def update_metadata(self, table_name, path, columns):
         # Update Postgres metadata table
@@ -170,22 +181,51 @@ class LakehouseManager:
 
 def main():
     manager = LakehouseManager(storage_base_path)
-    manager.convert_json_to_partitioned_parquet("/app/lakehouse_data/endpoints", "/app/lakehouse_data/parquet_data", "test_table")
-    manager.convert_json_to_partitioned_parquet("/app/lakehouse_data/chat", "/app/lakehouse_data/parquet_data", "test_table")
+
+    manager.convert_json_to_partitioned_parquet(
+        "/app/lakehouse_data/chat",
+        "/app/lakehouse_data/parquet_data",
+        "chat_history"
+    )
+
+    manager.convert_json_to_partitioned_parquet(
+        "/app/lakehouse_data/endpoints",
+        "/app/lakehouse_data/parquet_data",
+        "endpoint_logs"
+    )
 
     schema_def = {}
-    partitions = ["timestamp", "event_prefix"]
+    partitions = ["date", "event_prefix"]
 
     manager.register_table(
-        schema_name="silver",
-        table_name="test_table",
-        location="/app/lakehouse_data/parquet_data/test_table",
+        schema_name="digital_twin",
+        table_name="chat_history",
+        location="/app/lakehouse_data/parquet_data/chat_history",
         schema_def=schema_def,
         partitions=partitions
     )
-    
-    df = manager.query_table('silver.test_table')
-    print(df)
+
+    manager.register_table(
+        schema_name="digital_twin",
+        table_name="endpoint_logs",
+        location="/app/lakehouse_data/parquet_data/endpoint_logs",
+        schema_def=schema_def,
+        partitions=partitions
+    )
+
+    user_id = 1
+    table_id = 'digital_twin.chat_history'
+    today_str = date.today().isoformat()
+
+    sql = f"""
+        SELECT COUNT(*) as total_messages
+        FROM {table_id.replace('.', '_')}
+        WHERE user_id = {user_id}
+        AND date = DATE '{today_str}'
+    """
+
+    result_df = manager.query_table(table_id, query=sql)
+    print(result_df)
 
 if __name__ == "__main__":
     main()
