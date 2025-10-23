@@ -130,7 +130,7 @@ def add_chat_message_multi_agent(
     id: int,
     message: ChatMessageCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: User = Depends(get_current_user),
+    current_user: Annotated[User, Depends(get_current_user)],
 ):
     """
     Handles chat interactions using the multi-agent supervisor workflow.

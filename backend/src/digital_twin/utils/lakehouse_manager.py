@@ -62,14 +62,11 @@ class LakehouseManager:
                 raise ValueError(f"Table {table_id} not found")
             
             location = Path(result[0])
-            partition_cols = result[1] if result[1] else []
-
             
             # Discover partition files
             partitions = []
             if location.exists():
                 for partition_dir in location.rglob('*.parquet'):
-                    rel_path = partition_dir.relative_to(location)
                     partitions.append(str(partition_dir))
             
             return partitions
