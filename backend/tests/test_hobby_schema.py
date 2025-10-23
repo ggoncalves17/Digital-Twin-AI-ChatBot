@@ -1,4 +1,5 @@
-from digital_twin.schemas.hobby import HobbyBase, HobbyType, HobbyFrequency, HobbyUpdate
+from digital_twin.schemas.hobby import HobbyBase, HobbyFrequency, HobbyType, HobbyUpdate
+
 
 def test_valid_hobby_schema():
     hobby = HobbyBase(
@@ -20,5 +21,5 @@ def test_update_hobby_schema():
         name="Cycling",
     )
     assert hobby_update.name == "Cycling"
-    assert hobby_update.type == None 
-    assert hobby_update.freq == None
+    assert hobby_update.type is None 
+    assert hobby_update.freq is None

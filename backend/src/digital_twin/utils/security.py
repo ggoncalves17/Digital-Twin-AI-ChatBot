@@ -1,13 +1,15 @@
-from typing import Annotated
-from pwdlib import PasswordHash
 from datetime import datetime, timedelta, timezone
+from typing import Annotated
+
 import jwt
-from digital_twin.config import settings
-from digital_twin.models.user import User
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
+
+from digital_twin.config import settings
 from digital_twin.database import get_db
+from digital_twin.models.user import User
 from digital_twin.schemas.user import TokenData
 
 password_hash = PasswordHash.recommended()

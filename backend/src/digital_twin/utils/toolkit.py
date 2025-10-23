@@ -1,8 +1,8 @@
+
 import requests
-from typing import Optional
 from langchain.tools import Tool, tool
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.tools import DuckDuckGoSearchRun
+
 from digital_twin.config import settings
 
 # Get API key from https://openweathermap.org/api

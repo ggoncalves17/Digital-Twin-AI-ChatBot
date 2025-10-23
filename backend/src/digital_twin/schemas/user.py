@@ -10,6 +10,7 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, EmailStr, Field
 
 from digital_twin.schemas import Chat
 
+
 def validate_birthdate(v: date) -> date:
     if date.today() < v:
         raise ValueError("Birthdate cannot be in the future.")

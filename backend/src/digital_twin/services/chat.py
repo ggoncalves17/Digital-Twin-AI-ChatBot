@@ -3,17 +3,15 @@ from typing import Any
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from digital_twin.services.agent_executor import get_agent_executor
-from digital_twin.utils.persona_format import (
-    format_education,
-    format_hobbies,
-    format_occupations,
-)
 from digital_twin.models.chat import Chat
 from digital_twin.models.chat_message import ChatMessage
 from digital_twin.schemas.chat_message import ChatMessageCreate
+from digital_twin.services.agent_executor import get_agent_executor
 from digital_twin.services.persona import PersonaService
 from digital_twin.services.multi_agent_supervisor_pattern import create_supervisor_workflow
+from digital_twin.utils.persona_format import (
+    dump_persona,
+)
 
 
 class ChatService:
@@ -68,18 +66,8 @@ class ChatService:
         if not persona:
             return None
 
-        persona_data = {
-            "name": persona.name,
-            "nationality": persona.nationality or "Not specified",
-            "birthdate": persona.birthdate.strftime("%Y-%m-%d")
-            if persona.birthdate
-            else "Unknown",
-            "gender": persona.gender or "Not specified",
-            "hobbies": format_hobbies(persona.hobbies),
-            "occupations": format_occupations(persona.occupations),
-            "educations": format_education(persona.educations),
-            "input": question,
-        }
+        persona_data = dump_persona(persona)
+        persona_data["input"] = question
 
         executor = get_agent_executor()
 

@@ -5,14 +5,14 @@ Chat SQLAlchemy model.
 from datetime import datetime
 from typing import TYPE_CHECKING, List
 
-from sqlalchemy import ForeignKey, String
-from sqlalchemy.sql import func
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
 
 from digital_twin.models import Base
 
 if TYPE_CHECKING:
-    from digital_twin.models import User, Persona, ChatMessage
+    from digital_twin.models import ChatMessage, Persona, User
 
 
 class Chat(Base):
