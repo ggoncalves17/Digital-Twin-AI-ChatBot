@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from digital_twin.models.education import Education
@@ -18,7 +19,7 @@ class EducationService:
             db.refresh(new_education)
 
             return new_education
-        except:
+        except IntegrityError:
             return None
 
     @staticmethod

@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from digital_twin.models.hobby import Hobby
@@ -17,7 +18,7 @@ class HobbyService:
             db.refresh(new_hobby)
             
             return new_hobby
-        except:
+        except IntegrityError:
             return None
 
     @staticmethod
