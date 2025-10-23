@@ -46,13 +46,11 @@ def create_llm():
     )
     return llm
 
-llm = create_llm()
-
 
 # ===============================
 # Persona Agent Factory
 # ===============================
-def create_persona_agent(persona: Dict):
+def create_persona_agent(persona: Dict, llm):
     def agent(state: Dict) -> Dict:
         question = state["user_question"]
 
@@ -70,6 +68,7 @@ def create_persona_agent(persona: Dict):
         Thought: describe your reasoning
         Final Answer: respond naturally as yourself, {persona.get('name', 'Unknown')}
         """
+
         response = llm.invoke([
             SystemMessage(content=persona_context.strip()),
             HumanMessage(content=f"User asks: {question}")
@@ -101,7 +100,7 @@ def create_persona_agent(persona: Dict):
 # ===============================
 # Supervisor Agent
 # ===============================
-def supervisor_agent_factory(agents: Dict[str, callable], persona_map: Dict[str, int]):
+def supervisor_agent_factory(agents: Dict[str, callable], persona_map: Dict[str, int], llm):
     """Supervisor que decide qual persona deve responder."""
 
     def supervisor_agent(state: SupervisorState) -> Dict:
@@ -173,9 +172,10 @@ def create_supervisor_workflow(db: Session):
         })
         persona_map[p.name] = p.id
 
-    agents = {p["name"]: create_persona_agent(p) for p in persona_dicts}
+    llm = create_llm()
+    agents = {p["name"]: create_persona_agent(p,llm) for p in persona_dicts}
 
-    workflow.add_node("supervisor", supervisor_agent_factory(agents, persona_map))
+    workflow.add_node("supervisor", supervisor_agent_factory(agents, persona_map,llm))
     workflow.add_edge(START, "supervisor")
     workflow.add_edge("supervisor", END)
 
