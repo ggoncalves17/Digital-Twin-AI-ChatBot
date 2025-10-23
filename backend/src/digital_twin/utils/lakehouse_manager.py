@@ -171,10 +171,10 @@ class LakehouseManager:
 def main():
     manager = LakehouseManager(storage_base_path)
     manager.convert_json_to_partitioned_parquet("/app/lakehouse_data/endpoints", "/app/lakehouse_data/parquet_data", "test_table")
+    manager.convert_json_to_partitioned_parquet("/app/lakehouse_data/chat", "/app/lakehouse_data/parquet_data", "test_table")
 
     schema_def = {}
     partitions = ["timestamp", "event_prefix"]
-
 
     manager.register_table(
         schema_name="silver",
@@ -186,11 +186,6 @@ def main():
     
     df = manager.query_table('silver.test_table')
     print(df)
-
-
-    
-
-
 
 if __name__ == "__main__":
     main()
