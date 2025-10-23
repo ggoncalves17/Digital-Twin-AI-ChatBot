@@ -1,3 +1,13 @@
 {"event": "question_asked_multi_agent", "status": "success", "persona_id": 2, "user_id": 1, "question": "Como \u00e9 que te chamas?", "timestamp": "2025-10-23"}
 {"event": "question_asked_multi_agent", "status": "success", "persona_id": 1, "user_id": 1, "question": "Por quais personas consegues responder?", "timestamp": "2025-10-23"}
 {"event": "question_asked_multi_agent", "status": "success", "persona_id": 2, "user_id": 1, "question": "Xavier, como est\u00e1s?", "timestamp": "2025-10-23"}
+{"event": "question_asked_multi_agent", "status": "success", "persona_id": 2, "user_id": 1, "question": "Ol\u00e1, tudo bem?", "timestamp": "2025-10-23"}
+{"event": "question_asked_multi_agent", "status": "success", "persona_id": 1, "user_id": 1, "question": "Tu enquanto Abel, consegues dizer-me o que fazes?", "timestamp": "2025-10-23"}
+{"event": "question_asked_multi_agent", "status": "success", "persona_id": 2, "user_id": 1, "question": "E o Guilherme?", "timestamp": "2025-10-23"}
+{"event": "question_asked", "status": "success", "persona_id": 2, "user_id": 1, "question": "Conheces o Abel?", "timestamp": "2025-10-23"}
+{"event": "question_asked", "status": "success", "persona_id": 2, "user_id": 1, "question": "Fala-me sobre o Abel", "timestamp": "2025-10-23"}
+{"event": "question_asked_multi_agent", "status": "success", "persona_id": 2, "user_id": 1, "question": "Quem \u00e9s tu?", "timestamp": "2025-10-23"}
+{"event": "question_asked_multi_agent", "status": "success", "persona_id": 2, "user_id": 1, "question": "O que fazes Guilherme?", "timestamp": "2025-10-23"}
+{"event": "question_asked_multi_agent", "status": "success", "persona_id": 2, "user_id": 1, "question": "Onde estudas, Guilherme?", "timestamp": "2025-10-23"}
+{"event": "question_asked_multi_agent", "status": "success", "persona_id": 2, "user_id": 1, "question": "Ol\u00e1, Guilherme, tudo bem?", "timestamp": "2025-10-23"}
+{"event": "question_asked_multi_agent", "status": "success", "persona_id": 2, "user_id": 1, "question": "Como est\u00e1 o tempo em Coimbra, Guilherme?", "timestamp": "2025-10-23"}
