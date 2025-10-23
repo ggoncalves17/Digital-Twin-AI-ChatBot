@@ -7,8 +7,10 @@ from digital_twin.models.chat import Chat
 from digital_twin.models.chat_message import ChatMessage
 from digital_twin.schemas.chat_message import ChatMessageCreate
 from digital_twin.services.agent_executor import get_agent_executor
+from digital_twin.services.multi_agent_supervisor_pattern import (
+    create_supervisor_workflow,
+)
 from digital_twin.services.persona import PersonaService
-from digital_twin.services.multi_agent_supervisor_pattern import create_supervisor_workflow
 from digital_twin.utils.persona_format import (
     dump_persona,
 )
@@ -82,7 +84,6 @@ class ChatService:
         """
         Uses the multi-agent supervisor pattern to generate a collective response.
         """
-        from digital_twin.services.multi_agent_supervisor_pattern import create_supervisor_workflow
 
         workflow = create_supervisor_workflow(db)
 
