@@ -1,16 +1,15 @@
-from typing import Annotated, Dict, List, TypedDict
 import re
+from typing import Annotated, Dict, List, TypedDict
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langgraph.graph import StateGraph, END, START
+from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from digital_twin.config import settings
 from digital_twin.services.persona import PersonaService
-
 from digital_twin.utils.toolkit import search_tool, travel_recommendation, weather_tool
 
 agent_tools = [search_tool, weather_tool, travel_recommendation]
@@ -39,11 +38,15 @@ class SupervisorState(TypedDict):
 # ===============================
 # LLM Setup
 # ===============================
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
-    temperature=0.7,
-    google_api_key=settings.GOOGLE_API_KEY
-)
+def create_llm():
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        temperature=0.7,
+        google_api_key=settings.GOOGLE_API_KEY
+    )
+    return llm
+
+llm = create_llm()
 
 
 # ===============================
@@ -67,7 +70,6 @@ def create_persona_agent(persona: Dict):
         Thought: describe your reasoning
         Final Answer: respond naturally as yourself, {persona.get('name', 'Unknown')}
         """
-
         response = llm.invoke([
             SystemMessage(content=persona_context.strip()),
             HumanMessage(content=f"User asks: {question}")
