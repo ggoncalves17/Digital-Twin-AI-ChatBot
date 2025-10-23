@@ -22,7 +22,7 @@ import {
 import { BotMessageSquare } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
-import axios from "axios";
+import api from "@/api/axios";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid Email" }),
@@ -42,7 +42,7 @@ const Login = () => {
 
   const handleSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
-      const response = await axios.post("http://localhost:8000/api/v1/users/login", {
+      const response = await api.post("http://localhost:8000/api/v1/users/login", {
         email: values.email,
         password: values.password,
       }, {
