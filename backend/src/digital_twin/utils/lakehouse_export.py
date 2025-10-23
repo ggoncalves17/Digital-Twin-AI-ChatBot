@@ -3,7 +3,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-base_path = Path("/app/lakehouse_data")
+base_path = Path("./lakehouse_data")
 base_path.mkdir(exist_ok=True)
 
 def export_data(table: str, data: dict[str, Any]):
