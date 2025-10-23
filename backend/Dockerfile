@@ -28,6 +28,7 @@ RUN groupadd --gid 1000 nonroot \
 
 # Copy the application from the builder
 COPY --from=builder --chown=guest:users /app /app
+RUN chown nonroot:nonroot /app
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
