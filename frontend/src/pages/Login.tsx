@@ -42,7 +42,7 @@ const Login = () => {
 
   const handleSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
-      const response = await api.post("http://localhost:8000/api/v1/users/login", {
+      const response = await api.post("/api/v1/users/login", {
         email: values.email,
         password: values.password,
       }, {
