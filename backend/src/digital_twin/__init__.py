@@ -5,6 +5,7 @@ from typing import Any
 import alembic.command
 from alembic.config import Config
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from digital_twin.config import settings
@@ -17,7 +18,6 @@ from digital_twin.routers import (
     users,
 )
 
-from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

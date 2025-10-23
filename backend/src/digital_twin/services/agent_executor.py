@@ -1,7 +1,8 @@
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_google_genai import ChatGoogleGenerativeAI
-from digital_twin.prompts.persona_prompt import persona_template
+
 from digital_twin.config import settings
+from digital_twin.prompts.persona_prompt import persona_template
 from digital_twin.utils.toolkit import search_tool, travel_recommendation, weather_tool
 
 agent_tools = [search_tool, weather_tool, travel_recommendation]

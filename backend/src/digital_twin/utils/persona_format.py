@@ -1,3 +1,6 @@
+from digital_twin.models.persona import Persona
+
+
 def format_education(educations):
     if not educations:
         return "no listed educations"
@@ -7,6 +10,7 @@ def format_education(educations):
         for e in educations
     )
 
+
 def format_occupations(occupations):
     if not occupations:
         return "no listed occupations"
@@ -15,7 +19,22 @@ def format_occupations(occupations):
         for e in occupations
     )
 
+
 def format_hobbies(hobbies):
     if not hobbies:
         return "no listed hobbies"
     return "; ".join(f"{e.type} named {e.name} {e.freq}" for e in hobbies)
+
+
+def dump_persona(persona: Persona):
+    return {
+        "name": persona.name,
+        "nationality": persona.nationality or "Not specified",
+        "birthdate": persona.birthdate.strftime("%Y-%m-%d")
+        if persona.birthdate
+        else "Unknown",
+        "gender": persona.gender or "Not specified",
+        "hobbies": format_hobbies(persona.hobbies),
+        "occupations": format_occupations(persona.occupations),
+        "educations": format_education(persona.educations),
+    }

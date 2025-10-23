@@ -1,33 +1,33 @@
 
-from dataclasses import Field
 from datetime import date
-from turtle import position
-from digital_twin.schemas.education import Education, EducationBase, EducationLevel
-from digital_twin.schemas.hobby import HobbyFrequency, HobbyType, HobbyBase
-from digital_twin.schemas.occupation import OccupationBase
-from digital_twin.schemas.persona import GenderEnum, PersonaBase, PersonaCreate, PersonaUpdate, Persona
+
+# from digital_twin.schemas.education import EducationBase, EducationLevel
+# from digital_twin.schemas.hobby import HobbyBase, HobbyFrequency, HobbyType
+# from digital_twin.schemas.occupation import OccupationBase
+from digital_twin.schemas.persona import GenderEnum, PersonaBase, PersonaUpdate
+
 
 def test_valid_persona_schema():
-    hobby = HobbyBase(
-        name="Running",
-        type=HobbyType.SPORTS_FITNESS,
-        freq=HobbyFrequency.OFTEN
-    )
-    occupation = OccupationBase(
-        position="Software Engineer",
-        workplace="Tech Corp",
-        date_started=date(2020, 1, 1),
-        date_finished=date(2022, 1, 1)
-    )    
-    education = EducationBase(
-        level=EducationLevel.BACHELOR,
-        course="Computer Science",
-        school="Tech University",
-        date_started=date(2016, 1, 1),
-        date_finished=date(2020, 1, 1),
-        is_graduated=True,
-        grade=14.5
-    )
+    # hobby = HobbyBase(
+    #     name="Running",
+    #     type=HobbyType.SPORTS_FITNESS,
+    #     freq=HobbyFrequency.OFTEN
+    # )
+    # occupation = OccupationBase(
+    #     position="Software Engineer",
+    #     workplace="Tech Corp",
+    #     date_started=date(2020, 1, 1),
+    #     date_finished=date(2022, 1, 1)
+    # )    
+    # education = EducationBase(
+    #     level=EducationLevel.BACHELOR,
+    #     course="Computer Science",
+    #     school="Tech University",
+    #     date_started=date(2016, 1, 1),
+    #     date_finished=date(2020, 1, 1),
+    #     is_graduated=True,
+    #     grade=14.5
+    # )
     persona = PersonaBase(
         name="John Doe",
         birthdate=date(1990, 1, 1),
@@ -55,6 +55,6 @@ def test_update_persona_schema():
         name="Jane Doe",
     )
     assert persona_update.name == "Jane Doe"
-    assert persona_update.gender == None
-    assert persona_update.nationality == None
+    assert persona_update.gender is None
+    assert persona_update.nationality is None
 

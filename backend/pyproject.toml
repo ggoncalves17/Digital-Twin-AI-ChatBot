@@ -24,6 +24,7 @@ dependencies = [
     "pyarrow>=21.0.0",
     "pandas>=2.3.3",
     "duckdb>=1.4.1",
+    "langgraph>=1.0.1",
 ] 
 
 [project.scripts]

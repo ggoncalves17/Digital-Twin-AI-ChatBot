@@ -1,15 +1,15 @@
 from typing import Annotated
 
-from digital_twin.services.chat import ChatService
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from digital_twin.database import get_db
 from digital_twin.schemas.chat_message import ChatMessage, ChatMessageCreate
 from digital_twin.schemas.user import Token, User, UserCreate, UserLogin
+from digital_twin.services.chat import ChatService
 from digital_twin.services.user import UserService
-from digital_twin.utils.security import create_access_token, get_current_user
 from digital_twin.utils.lakehouse_export import export_data
+from digital_twin.utils.security import create_access_token, get_current_user
 
 router = APIRouter(prefix="/users", tags=["user"])
 
@@ -40,7 +40,7 @@ def authenticate_user(user: UserLogin, db: Annotated[Session, Depends(get_db)]):
 
 
 @router.get("/profile")
-def get_profile(current_user: User = Depends(get_current_user)) -> User:
+def get_profile(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     return current_user
 
 
@@ -49,7 +49,7 @@ def get_chats(
     id: int,
     persona_id: int,
     db: Annotated[Session, Depends(get_db)],
-    current_user: User = Depends(get_current_user),
+    current_user: Annotated[User, Depends(get_current_user)],
 ) -> list[ChatMessage] | None:
     chat = ChatService.get_user_persona_chats(id, persona_id, db)
 
@@ -65,7 +65,7 @@ def add_chat_message(
     persona_id: int,
     message: ChatMessageCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: User = Depends(get_current_user),
+    current_user: Annotated[User, Depends(get_current_user)],
 ):
     chat = ChatService.get_user_persona_chats(id, persona_id, db)
 
@@ -124,3 +124,74 @@ def add_chat_message(
         )
 
     return new_response
+
+@router.post("/{id}/multi-agent")
+def add_chat_message_multi_agent(
+    id: int,
+    message: ChatMessageCreate,
+    db: Annotated[Session, Depends(get_db)],
+    # current_user: User = Depends(get_current_user),
+):
+    """
+    Handles chat interactions using the multi-agent supervisor workflow.
+    """
+    result = ChatService.generate_chat_response_supervisor(message.content, db)
+    if not result:
+        export_data(
+            "chat",
+            {
+                "event": "question_asked_multi_agent",
+                "status": "error",
+                "description": "Supervisor failed.",
+            }
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to generate a response using the multi-agent system.",
+        )
+    persona_id = result.get("persona_id")
+    chat = ChatService.get_user_persona_chats(id, persona_id, db)
+
+    if chat is None:
+        chat = ChatService.create_chat_persona(id, persona_id, db)
+        if not chat:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create a new chat with the specified persona.",
+            )
+
+    new_message = ChatService.add_chat_persona_message(chat.id, message, db)
+    if not new_message:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to add the user's message to the chat.",
+        )
+
+    export_data(
+        "chat",
+        {
+            "event": "question_asked_multi_agent",
+            "status": "success",
+            "persona_id": persona_id,
+            "user_id": id,
+            "question": message.content,
+        }
+    )
+
+    assistant_message = ChatMessageCreate(role="Assistant", content=result["output"])
+    new_response = ChatService.add_chat_persona_message(chat.id, assistant_message, db)
+
+    if not new_response:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to store the assistant's response from the supervisor workflow.",
+        )
+    
+    new_response.metadata = {
+        "persona": result.get("persona"),
+        "confidence": result.get("confidence"),
+        "workflow": "multi-agent-supervisor",
+    }
+
+    return new_response
+
