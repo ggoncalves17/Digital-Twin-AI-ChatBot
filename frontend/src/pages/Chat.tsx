@@ -48,7 +48,7 @@ const Chat = () => {
     }
 
     api
-      .get("http://localhost:8000/api/v1/users/profile", {
+      .get("/api/v1/users/profile", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -65,7 +65,7 @@ const Chat = () => {
   // Get all personas
   useEffect(() => {
     api
-      .get("http://localhost:8000/api/v1/personas/")
+      .get("/api/v1/personas/")
       .then((response) => {
         const personas: Persona[] = response.data.map((item: any) => ({
           id: item.id,
@@ -99,7 +99,7 @@ const Chat = () => {
 
     api
       .get(
-        `http://localhost:8000/api/v1/users/${userId}/chats/${selectedPersona}`,
+        `/api/v1/users/${userId}/chats/${selectedPersona}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -143,9 +143,9 @@ const handleSend = async () => {
     let url = "";
 
     if (selectedPersona === "supervisor") {
-      url = `http://localhost:8000/api/v1/users/${userId}/multi-agent`;
+      url = `/api/v1/users/${userId}/multi-agent`;
     } else {
-      url = `http://localhost:8000/api/v1/users/${userId}/chats/${selectedPersona}`;
+      url = `/api/v1/users/${userId}/chats/${selectedPersona}`;
     }
 
     const response = await api.post(
