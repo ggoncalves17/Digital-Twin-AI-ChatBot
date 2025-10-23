@@ -90,10 +90,10 @@ const Chat = () => {
       return;
     }
 
-    if (selectedPersona.toLowerCase() === "supervisor") {
+    if (selectedPersona === "supervisor") {
       setMessages([]);
       return;
-    }
+    } 
 
     setLoadingHistory(true);
 
