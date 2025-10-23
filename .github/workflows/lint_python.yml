@@ -20,7 +20,7 @@ jobs:
         with:
           src: "./backend/src"
           args: "check --fix"
-          version_file: "./backend/pyproject.toml"
+          version-file: "./backend/pyproject.toml"
           github-token: ${{secrets.GITHUB_TOKEN}}
       - name: Commit fixes back to repo
         if: always()
