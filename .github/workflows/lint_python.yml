@@ -3,7 +3,7 @@ name: Lint python files
 on:
   pull_request:
     branches: [main]
-    paths: [backend]
+    paths: ["**.py"]
 
 jobs:
   ruff:
