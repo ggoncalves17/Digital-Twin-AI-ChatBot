@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Send, User, Bot } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "@/api/axios";
 
 type Message = {
   id: string;
@@ -47,7 +47,7 @@ const Chat = () => {
       return;
     }
 
-    axios
+    api
       .get("http://localhost:8000/api/v1/users/profile", {
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -64,7 +64,7 @@ const Chat = () => {
 
   // Get all personas
   useEffect(() => {
-    axios
+    api
       .get("http://localhost:8000/api/v1/personas/")
       .then((response) => {
         const personas: Persona[] = response.data.map((item: any) => ({
@@ -90,9 +90,14 @@ const Chat = () => {
       return;
     }
 
+    if (selectedPersona.toLowerCase() === "supervisor") {
+      setMessages([]);
+      return;
+    }
+
     setLoadingHistory(true);
 
-    axios
+    api
       .get(
         `http://localhost:8000/api/v1/users/${userId}/chats/${selectedPersona}`,
         {
@@ -143,7 +148,7 @@ const handleSend = async () => {
       url = `http://localhost:8000/api/v1/users/${userId}/chats/${selectedPersona}`;
     }
 
-    const response = await axios.post(
+    const response = await api.post(
       url,
       { role: "User", content: messageContent },
       {

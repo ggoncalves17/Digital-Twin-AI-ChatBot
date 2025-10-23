@@ -8,24 +8,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { BotMessageSquare } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import axios from 'axios';
+import api from "@/api/axios";
 import { toast } from "sonner";
 
-const registerSchema = z.object({
-  name: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres" }),
-  email: z.string().email({ message: "Email inválido" }),
-  password: z.string().min(8, { message: "A senha deve ter pelo menos 8 caracteres" }),
-  confirmPassword: z.string(),
-  birthDate: z.string().refine((date) => {
-    const selectedDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return selectedDate <= today;
-  }, { message: "A data de nascimento não pode ser futura" }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "As senhas não coincidem",
-  path: ["confirmPassword"],
-});
+const registerSchema = z
+  .object({
+    name: z.string().min(2, { message: "Name must have at least 2 characters" }),
+    email: z.string().email({ message: "Invalid email address" }),
+    password: z.string().min(8, { message: "Password must have at least 8 characters" }),
+    confirmPassword: z.string(),
+    birthDate: z
+      .string()
+      .refine((date) => {
+        const selectedDate = new Date(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return selectedDate <= today;
+      }, { message: "Birth date cannot be in the future" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 const Register = () => {
   const navigate = useNavigate();
@@ -41,28 +45,29 @@ const Register = () => {
 
   const handleSubmit = async (values: z.infer<typeof registerSchema>) => {
     try {
-      const response = await axios.post("http://localhost:8000/api/v1/users/register", {
-        name: values.name, 
-        birthdate: values.birthDate, 
-        email: values.email, 
+      const response = await api.post("/api/v1/users/register", {
+        name: values.name,
+        birthdate: values.birthDate,
+        email: values.email,
         password: values.password,
       }, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
-      toast.success("Utilizador registado com sucesso!");
+
+      toast.success("User successfully registered!");
       navigate("/");
- 
+
     } catch (error: any) {
       if (error.response?.status === 404) {
         toast.error(error.response.data.detail);
       } else {
-        console.log("ERRO: ", error)
-        toast.error("Erro ao tentar registar utilizador.");
+        console.log("ERROR: ", error);
+        toast.error("Error while trying to register user.");
       }
     }
-    };
+  };
 
   const toggleMode = () => {
     navigate("/");
@@ -80,7 +85,7 @@ const Register = () => {
           </div>
           <CardTitle className="text-3xl font-bold">Digital Twin</CardTitle>
           <CardDescription className="text-base">
-            {"Crie sua conta"}
+            {"Create your account"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -91,9 +96,9 @@ const Register = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome</FormLabel>
+                    <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Seu nome" {...field} />
+                      <Input placeholder="Your name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -106,7 +111,7 @@ const Register = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="seu@email.com" {...field} />
+                      <Input type="email" placeholder="your@email.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -117,7 +122,7 @@ const Register = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Senha</FormLabel>
+                    <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
@@ -131,7 +136,7 @@ const Register = () => {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirmar Senha</FormLabel>
+                      <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="••••••••" {...field} />
                       </FormControl>
@@ -144,7 +149,7 @@ const Register = () => {
                   name="birthDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Data de Nascimento</FormLabel>
+                      <FormLabel>Date of Birth</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
@@ -154,7 +159,7 @@ const Register = () => {
                 />
               </>
               <Button type="submit" className="w-full">
-                {"Criar Conta"}
+                {"Create Account"}
               </Button>
             </form>
           </Form>
@@ -163,7 +168,7 @@ const Register = () => {
               onClick={toggleMode}
               className="text-muted-foreground hover:text-primary transition-colors"
             >
-              {"Já tem uma conta? Entrar"}
+              {"Already have an account? Sign in"}
             </button>
           </div>
         </CardContent>
