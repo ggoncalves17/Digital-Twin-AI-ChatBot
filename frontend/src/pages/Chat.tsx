@@ -71,6 +71,9 @@ const Chat = () => {
           id: item.id,
           name: item.name,
         }));
+        
+        personas.unshift({ id: "supervisor", name: "Supervisor" });
+
         setPersonas(personas);
       })
       .catch((error) => {
@@ -114,59 +117,68 @@ const Chat = () => {
       });
   }, [selectedPersona, userId]);
 
-  const handleSend = async () => {
-    if (!input.trim() || !userId || !selectedPersona) return;
+const handleSend = async () => {
+  if (!input.trim() || !userId || !selectedPersona) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input,
+  const userMessage: Message = {
+    id: Date.now().toString(),
+    role: "user",
+    content: input,
+    timestamp: new Date(),
+  };
+
+  setMessages((prev) => [...prev, userMessage]);
+  const messageContent = input;
+  setInput("");
+  setIsBotTyping(true);
+
+  try {
+    const token = localStorage.getItem("token");
+
+    let url = "";
+
+    if (selectedPersona === "supervisor") {
+      url = `http://localhost:8000/api/v1/users/${userId}/multi-agent`;
+    } else {
+      url = `http://localhost:8000/api/v1/users/${userId}/chats/${selectedPersona}`;
+    }
+
+    const response = await axios.post(
+      url,
+      { role: "User", content: messageContent },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response.data;
+
+    const assistantMessage: Message = {
+      id: data.id.toString(),
+      role: data.role.toLowerCase() === "assistant" ? "assistant" : "user",
+      content: data.content,
+      timestamp: new Date(data.created_at),
+    };
+
+    setMessages((prev) => [...prev, assistantMessage]);
+  } catch (error) {
+    console.error("Failed to send message:", error);
+
+    const errorMessage: Message = {
+      id: Date.now().toString() + "-error",
+      role: "assistant",
+      content: "Failed to get a response from the assistant.",
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-    const messageContent = input;
-    setInput("");
-    setIsBotTyping(true);
+    setMessages((prev) => [...prev, errorMessage]);
+  } finally {
+    setIsBotTyping(false);
+  }
+};
 
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.post(
-        `http://localhost:8000/api/v1/users/${userId}/chats/${selectedPersona}`,
-        { role: "User", content: messageContent },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = response.data;
-
-      const assistantMessage: Message = {
-        id: data.id.toString(),
-        role: data.role.toLowerCase() === "assistant" ? "assistant" : "user",
-        content: data.content,
-        timestamp: new Date(data.created_at),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("Failed to send message:", error);
-
-      const errorMessage: Message = {
-        id: Date.now().toString() + "-error",
-        role: "assistant",
-        content: "⚠️ Failed to get a response from the assistant.",
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsBotTyping(false);
-    }
-  };
 
   const currentPersona = personas.find((p) => p.id === selectedPersona);
 

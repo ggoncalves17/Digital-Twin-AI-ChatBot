@@ -14,10 +14,6 @@ from digital_twin.utils.toolkit import search_tool, travel_recommendation, weath
 
 agent_tools = [search_tool, weather_tool, travel_recommendation]
 
-
-# ===============================
-# Data Models
-# ===============================
 class PersonaReport(BaseModel):
     persona_name: str
     response: str
@@ -35,9 +31,6 @@ class SupervisorState(TypedDict):
     confidence_score: float
 
 
-# ===============================
-# LLM Setup
-# ===============================
 def create_llm():
     llm = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
@@ -47,9 +40,6 @@ def create_llm():
     return llm
 
 
-# ===============================
-# Persona Agent Factory
-# ===============================
 def create_persona_agent(persona: Dict, llm):
     def agent(state: Dict) -> Dict:
         question = state["user_question"]
@@ -97,9 +87,6 @@ def create_persona_agent(persona: Dict, llm):
     return agent
 
 
-# ===============================
-# Supervisor Agent
-# ===============================
 def supervisor_agent_factory(agents: Dict[str, callable], persona_map: Dict[str, int], llm):
     """Supervisor que decide qual persona deve responder."""
 
@@ -149,9 +136,6 @@ def supervisor_agent_factory(agents: Dict[str, callable], persona_map: Dict[str,
     return supervisor_agent
 
 
-# ===============================
-# Workflow Builder
-# ===============================
 def create_supervisor_workflow(db: Session):
     workflow = StateGraph(SupervisorState)
 
