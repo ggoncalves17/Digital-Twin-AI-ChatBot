@@ -1,0 +1,25 @@
+name: Lint python files
+
+on:
+  pull_request:
+  paths: ["backend"]
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Lint python files with Ruff
+        uses: astral-sh/ruff-action@v3
+        with:
+          src: "./backend/src"
+          args: "check --fix"
+          version_file: "./backend/pyproject.toml"
+          github-token: ${{secrets.GITHUB_TOKEN}}
+      - name: Commit fixes back to repo
+        if: always()
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "fix: apply ruff fixes"
+          file_pattern: "*.py"
