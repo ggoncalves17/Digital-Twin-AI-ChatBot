@@ -7,6 +7,9 @@ from digital_twin.models.chat import Chat
 from digital_twin.models.chat_message import ChatMessage
 from digital_twin.schemas.chat_message import ChatMessageCreate
 from digital_twin.services.agent_executor import get_agent_executor
+from digital_twin.services.multi_agent_supervisor_pattern import (
+    create_supervisor_workflow,
+)
 from digital_twin.services.persona import PersonaService
 from digital_twin.utils.persona_format import (
     dump_persona,
@@ -73,3 +76,36 @@ class ChatService:
         result = executor.invoke(persona_data)
 
         return result
+    
+    @staticmethod
+    def generate_chat_response_supervisor(
+        question: str, db: Session
+    ) -> dict[str, Any] | None:
+        """
+        Uses the multi-agent supervisor pattern to generate a collective response.
+        """
+
+        workflow = create_supervisor_workflow(db)
+
+        state = {
+            "user_question": question,
+            "chosen_persona": "",
+            "completed_personas": [],
+            "persona_reports": {},
+            "final_answer": "",
+            "confidence_score": 0.0,
+        }
+
+        try:
+            result = workflow.invoke(state)
+        except Exception as e:
+            print(f"[Supervisor Error] {e}")
+            return None
+
+        return {
+            "output": result.get("final_answer", ""),
+            "confidence": result.get("confidence_score", 0.0),
+            "persona": result.get("chosen_persona",""),
+            "persona_id": result.get("chosen_persona_id","")
+        }
+
