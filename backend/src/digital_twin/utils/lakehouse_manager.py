@@ -1,14 +1,15 @@
 # lakehouse_manager.py
-from sqlalchemy import create_engine, select, text
-from sqlalchemy.orm import sessionmaker
+import glob
+import json
+import os
+import uuid
+from datetime import date
+from pathlib import Path
+
 import duckdb
 import pandas as pd
-import glob
-import os
-import json
-import uuid
-from datetime import date, datetime
-from pathlib import Path
+from sqlalchemy import text
+
 from digital_twin.database import engine
 
 storage_base_path = "/app/lakehouse_data"

@@ -1,8 +1,10 @@
-from sqlalchemy import String, JSON 
-from sqlalchemy.sql import func
-from digital_twin.models import Base
 from datetime import datetime
+
+from sqlalchemy import JSON, String
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql import func
+
+from digital_twin.models import Base
 
 # Define table
 
