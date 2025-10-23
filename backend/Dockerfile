@@ -20,7 +20,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 
 # Stage 2: use a final image without uv
-FROM python:3.13-slim-trixxie
+FROM python:3.13-slim-trixie
 
 # Setup a non-root user
 RUN groupadd --gid 1000 nonroot \
