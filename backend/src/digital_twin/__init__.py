@@ -51,6 +51,7 @@ app.include_router(router)
 origins = [
     "http://localhost",
     "http://localhost:8080",
+    "https://digital-twin-frontend.onrender.com/",
 ]
 
 app.add_middleware(
