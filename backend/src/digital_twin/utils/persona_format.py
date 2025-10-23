@@ -1,7 +1,4 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from digital_twin.models.persona import Persona
+from digital_twin.models.persona import Persona
 
 
 def format_education(educations):
