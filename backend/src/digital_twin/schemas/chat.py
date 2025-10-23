@@ -7,7 +7,7 @@ from typing import Annotated, ClassVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from digital_twin.schemas import ChatMessage
+from digital_twin.schemas.chat_message import ChatMessage
 
 
 class ChatBase(BaseModel):
