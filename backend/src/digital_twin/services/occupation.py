@@ -1,6 +1,6 @@
 from datetime import date, datetime
-from sqlalchemy.exc import IntegrityError
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from digital_twin.models.occupation import Occupation

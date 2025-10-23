@@ -1,15 +1,15 @@
 from typing import Annotated
 
-from digital_twin.services.chat import ChatService
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from digital_twin.database import get_db
 from digital_twin.schemas.chat_message import ChatMessage, ChatMessageCreate
 from digital_twin.schemas.user import Token, User, UserCreate, UserLogin
+from digital_twin.services.chat import ChatService
 from digital_twin.services.user import UserService
-from digital_twin.utils.security import create_access_token, get_current_user
 from digital_twin.utils.lakehouse_export import export_data
+from digital_twin.utils.security import create_access_token, get_current_user
 
 router = APIRouter(prefix="/users", tags=["user"])
 
@@ -40,7 +40,7 @@ def authenticate_user(user: UserLogin, db: Annotated[Session, Depends(get_db)]):
 
 
 @router.get("/profile")
-def get_profile(current_user: User = Depends(get_current_user)) -> User:
+def get_profile(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     return current_user
 
 
@@ -49,7 +49,7 @@ def get_chats(
     id: int,
     persona_id: int,
     db: Annotated[Session, Depends(get_db)],
-    current_user: User = Depends(get_current_user),
+    current_user: Annotated[User, Depends(get_current_user)],
 ) -> list[ChatMessage] | None:
     chat = ChatService.get_user_persona_chats(id, persona_id, db)
 
@@ -65,7 +65,7 @@ def add_chat_message(
     persona_id: int,
     message: ChatMessageCreate,
     db: Annotated[Session, Depends(get_db)],
-    current_user: User = Depends(get_current_user),
+    current_user: Annotated[User, Depends(get_current_user)],
 ):
     chat = ChatService.get_user_persona_chats(id, persona_id, db)
 

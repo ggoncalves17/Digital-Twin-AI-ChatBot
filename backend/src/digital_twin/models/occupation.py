@@ -2,10 +2,12 @@
 Occupation SQLAlchemy model.
 """
 
-from sqlalchemy.orm import relationship, Mapped, mapped_column
 from datetime import date
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, String, Date
+
+from sqlalchemy import Date, ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from digital_twin.models import Base
 
 if TYPE_CHECKING:

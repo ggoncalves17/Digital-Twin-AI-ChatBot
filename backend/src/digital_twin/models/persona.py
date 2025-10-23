@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from digital_twin.models import Base
 
 if TYPE_CHECKING:
-    from digital_twin.models import Education, Hobby, Occupation, Chat
+    from digital_twin.models import Chat, Education, Hobby, Occupation
 
 
 class Persona(Base):

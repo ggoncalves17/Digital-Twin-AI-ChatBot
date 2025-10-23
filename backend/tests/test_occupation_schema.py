@@ -1,8 +1,11 @@
 
-from dataclasses import Field
 from datetime import date
-from turtle import position
-from digital_twin.schemas.occupation import OccupationBase, OccupationCreate, OccupationUpdate, Occupation
+
+from digital_twin.schemas.occupation import (
+    OccupationBase,
+    OccupationUpdate,
+)
+
 
 def test_valid_occupation_schema():
     occupation = OccupationBase(
@@ -26,6 +29,6 @@ def test_update_occupation_schema():
         position="Senior Software Engineer",
     )
     assert occupation_update.position == "Senior Software Engineer"
-    assert occupation_update.workplace == None
-    assert occupation_update.date_started == None
-    assert occupation_update.date_finished == None
+    assert occupation_update.workplace is None
+    assert occupation_update.date_started is None
+    assert occupation_update.date_finished is None
