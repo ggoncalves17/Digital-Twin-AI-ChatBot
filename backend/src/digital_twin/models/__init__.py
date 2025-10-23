@@ -10,5 +10,6 @@ from .hobby import Hobby
 from .user import User
 from .chat import Chat
 from .chat_message import ChatMessage
+from .metadata import Table
 
-__all__ = ["Base", "Persona", "Education", "Occupation", "Hobby", "User", "Chat", "ChatMessage"]
+__all__ = ["Base", "Persona", "Education", "Occupation", "Hobby", "User", "Chat", "ChatMessage", "Table"]
