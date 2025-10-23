@@ -1,5 +1,5 @@
 # Stage1: Build the application in the `/app` directory.
-FROM ghcr.io/astral-sh/uv:python3.13-alpine AS builder
+FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim AS builder
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 # Disable Python downloads, because we want to use the system interpreter
@@ -20,7 +20,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 
 # Stage 2: use a final image without uv
-FROM python:3.13-alpine
+FROM python:3.13-slim-trixxie
+
+# Setup a non-root user
+RUN groupadd --gid 1000 nonroot \
+    && useradd --uid 1000 --gid 1000 --create-home nonroot
 
 # Copy the application from the builder
 COPY --from=builder --chown=guest:users /app /app
@@ -29,7 +33,7 @@ COPY --from=builder --chown=guest:users /app /app
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Use the non-root user to run our application
-USER guest
+USER nonroot
 
 # Use `/app` as the working directory
 WORKDIR /app
