@@ -33,10 +33,10 @@ jobs:
           push: true
           tags: ghcr.io/ggoncalves17/digital-twin:latest
 
-    deploy-render:
-      needs: build-and-push-image
-      on: ubunutu-latest
-      steps:
-          - name: Invoke deployment hook
-            run: |
-              curl -X GET ${{secrets.DEPLOY_URL}}
+  deploy-render:
+    needs: build-and-push-image
+    on: ubunutu-latest
+    steps:
+        - name: Invoke deployment hook
+          run: |
+            curl -X GET ${{secrets.DEPLOY_URL}}
