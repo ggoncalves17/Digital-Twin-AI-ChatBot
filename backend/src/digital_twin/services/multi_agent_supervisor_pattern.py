@@ -150,7 +150,7 @@ def create_supervisor_workflow(db: Session):
             "birthdate": p.birthdate.strftime("%Y-%m-%d") if p.birthdate else "Unknown",
             "gender": p.gender or "Not specified",
             "nationality": p.nationality or "Not specified",
-            "educations": [e.degree for e in p.educations] if hasattr(p, "educations") else [],
+            "educations": [e.level for e in p.educations] if hasattr(p, "educations") else [],
             "occupations": [o.name for o in p.occupations] if hasattr(p, "occupations") else [],
             "hobbies": [h.name for h in p.hobbies] if hasattr(p, "hobbies") else [],
         })
