@@ -25,6 +25,7 @@ dependencies = [
     "pandas>=2.3.3",
     "duckdb>=1.4.1",
     "langgraph>=1.0.1",
+    "pytest-cov>=7.0.0",
 ] 
 
 [project.scripts]
