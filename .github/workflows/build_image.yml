@@ -35,7 +35,7 @@ jobs:
 
   deploy-render:
     needs: build-and-push-image
-    on: ubunutu-latest
+    runs-on: ubunutu-latest
     steps:
         - name: Invoke deployment hook
           run: |
